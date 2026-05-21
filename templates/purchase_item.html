@@ -1,0 +1,456 @@
+<style>
+/* Order Card */
+.order-card {
+  border: 1px solid #e0e0e0;
+  padding: 15px;
+  background: #fff;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.order-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Order Body */
+.order-body {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.order-body img {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Order Details */
+.order-details {
+  flex: 1;
+}
+
+.order-details h3 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-details p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Total */
+.order-total {
+  font-weight: 600;
+  font-size: 15px;
+  color: #000;
+  margin-top: 5px;
+}
+
+/* Status Section */
+.order-status {
+  min-width: 150px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.delivered { color: green; }
+.pending { color: #ff7600; }
+.preparing { color: #0099ff; }
+.shipped { color: #7a3cff; }
+.cancelled { color: red; }
+
+/* Action Buttons */
+.order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 95px;
+}
+
+.action-btn,
+.order-actions form button {
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: 100;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  background: #ff4500; /* orange same as Buy Again */
+  color: white;
+  text-decoration: none;
+  text-align: center;
+}
+
+/* Make form buttons inline */
+.order-actions form {
+  display: inline;
+}
+
+.seller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.seller-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-status p {
+  margin: 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+/* MODAL OVERLAY */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+}
+
+/* MODAL BOX */
+.modal-content {
+  background: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  margin: 80px auto;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  position: relative;
+  font-family: "Poppins", sans-serif;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+.modal-content::-webkit-scrollbar {
+  width: 6px;                 /* thinner scrollbar */
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;         /* light background */
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #000000;         /* scrollbar color */
+  border-radius: 10px;  
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* CLOSE BUTTON */
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #777;
+  transition: 0.2s;
+}
+
+.close:hover {
+  color: #000;
+}
+
+/* TITLES */
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modal-content h3 {
+  margin-bottom: 8px;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* INPUTS */
+.modal-content select,
+.modal-content textarea,
+.modal-content input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  margin-top: 6px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.modal-content textarea {
+  resize: vertical;
+  height: 90px;
+}
+
+.modal-content label {
+  font-size: 14px;
+  font-weight: 500;
+  display: block;
+  margin-top: 15px;
+}
+
+/* SUBMIT BUTTON */
+.modal-content button[type="submit"] {
+  width: 100%;
+  background: #ff4500;
+  color: white;
+  padding: 12px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 25px;
+  transition: 0.3s;
+}
+
+.modal-content button[type="submit"]:hover {
+  background: #e03f00;
+}
+
+/* HR */
+.modal-content hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 25px 0;
+}
+.star-rating {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 30px;
+  justify-content: center;
+}
+
+.star-rating input {
+  display: none;
+}
+
+.star-rating label {
+  font-size: 40px;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: #ffb400;
+}
+
+
+</style>
+
+
+<div class="order-card">
+  <div class="seller-header">
+    <div class="seller-info">
+      <span class="seller-name">🛍️ {{ item.seller_name }}</span>
+      <button class="chat-btn">💬 Chat</button>
+      <button class="viewshop-btn">🏬 View Shop</button>
+    </div>
+
+    <div class="order-status">
+      {% if item.status == 'Pending' %}
+        <p class="pending">Awaiting Payment</p>
+
+    {% elif item.status in ['Preparing', 'Accepted'] %}
+      <p class="preparing">Preparing to ship your parcel</p>
+
+      {% elif item.status == 'Shipped' %}
+        <p class="shipped">Your parcel has been picked up</p>
+
+      {% elif item.status == 'Delivery' %}
+        <p class="shipped">Out for Delivery</p>
+
+      {% elif item.status == 'Delivered' %}
+        <p class="delivered">Delivered</p>
+
+      {% elif item.status == 'Cancelled' %}
+        <p class="cancelled">Cancelled</p>
+
+      {% elif item.status == 'Refund' %}
+        <p class="refund">Refund</p>
+
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="order-body">
+    <img src="{{ url_for('static', filename='uploads/sellers/' + item.photo) }}" alt="{{ item.product_name }}">
+
+    <div class="order-details">
+      <h3>{{ item.product_name }}</h3>
+      <p>Variation: {{ item.variation }}</p>
+      <p>Price: ₱{{ "{:,.2f}".format(item.price) }}</p>
+      <p>Qty: {{ item.quantity }}</p>
+
+      {% if item.status == 'Refund' %}
+        <p class="order-total" style="color:red;font-weight:700;">
+          Total Refund: ₱{{ "{:,.2f}".format(item.price * item.quantity) }}
+        </p>
+      {% else %}
+        <p class="order-total">
+          Total: ₱{{ "{:,.2f}".format(item.price * item.quantity) }}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="order-actions">
+      
+      {# PENDING — PREPARING — SHIPPED — DELIVERY #}
+      {% if item.status in ['Pending', 'Preparing', 'Shipped', 'Delivery','Accepted'] %}
+        <a href="" class="action-btn">Contact Seller</a>
+      <form id="cancelForm{{ item.item_id }}" action="{{ url_for('cancel_order', item_id=item.item_id) }}" method="POST" style="display:inline;">
+        <button type="button" class="action-btn" onclick="confirmCancel({{ item.item_id }})">Cancel Order</button>
+      </form>
+
+        {# DELIVERED — FULL BUTTON LIST #}
+        {% elif item.status == 'Delivered' %}
+
+            {% if not item.order_received %}
+                <form action="{{ url_for('order_received', item_id=item.item_id) }}" method="POST">
+                    <button class="action-btn">Order Received</button>
+                </form>
+            {% endif %}
+
+            {% if item.order_received and not item.already_rated %}
+                <button class="action-btn rate-btn" data-item-id="{{ item.item_id }}" data-product-name="{{ item.product_name }}">
+                    Rate
+                </button>
+            {% endif %}
+
+            {% if not item.order_received %}
+                <a href="{{ url_for('request_refund', item_id=item.item_id) }}" class="action-btn">Return / Refund</a>
+            {% endif %}
+
+            <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="action-btn buy-again">Buy Again</a>
+
+
+
+      {# CANCELLED — ONLY 2 BUTTONS #}
+      {% elif item.status == 'Cancelled' %}
+        <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="action-btn buy-again">Buy Again</a>
+        <a href="#" class="action-btn" onclick="viewCancelDetails('{{ item.cancel_reason|escape }}')">View Cancellation Details</a>
+
+      {# RETURN / REFUND — NO BUTTONS EXCEPT BUY AGAIN #}
+      {% elif item.status == 'Refund' %}
+        <a href="{{ url_for('view_product', product_id=item.product_id) }}" class="action-btn buy-again">Buy Again</a>
+
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ======== RATING MODAL ========
+  const ratingModal = document.getElementById('ratingModal');
+  const rateBtns = document.querySelectorAll('.rate-btn');
+
+  rateBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      ratingModal.style.display = 'block';
+      document.getElementById('modalProductName').textContent = btn.dataset.productName;
+      document.getElementById('modalItemId').value = btn.dataset.itemId;
+    });
+  });
+
+  ratingModal.querySelectorAll('.close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      ratingModal.style.display = 'none';
+    });
+  });
+
+  // ======== CANCEL MODAL ========
+  const cancelModal = document.getElementById('cancelModal');
+  const cancelFormModal = document.getElementById('cancelFormModal');
+
+  window.confirmCancel = function(itemId) {
+    cancelFormModal.action = `/cancel_order/${itemId}`;
+    cancelModal.style.display = 'block';
+  }
+
+  cancelModal.querySelectorAll('.close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      cancelModal.style.display = 'none';
+    });
+  });
+
+  window.showOtherReason = function() {
+    const select = document.getElementById("cancel_reason");
+    const otherBox = document.getElementById("otherReasonBox");
+    otherBox.style.display = (select.value === "Others") ? "block" : "none";
+  }
+
+  // ======== CANCEL DETAILS MODAL ========
+  const cancelDetailsModal = document.getElementById('cancelDetailsModal');
+
+  window.viewCancelDetails = function(reason) {
+    document.getElementById('cancelReasonText').textContent = reason || "No reason provided.";
+    cancelDetailsModal.style.display = 'block';
+  }
+
+  cancelDetailsModal.querySelectorAll('.close').forEach(btn => {
+    btn.addEventListener('click', () => {
+      cancelDetailsModal.style.display = 'none';
+    });
+  });
+
+  // ======== CLICK OUTSIDE TO CLOSE ========
+  window.addEventListener('click', (e) => {
+    if (e.target === ratingModal) ratingModal.style.display = 'none';
+    if (e.target === cancelModal) cancelModal.style.display = 'none';
+    if (e.target === cancelDetailsModal) cancelDetailsModal.style.display = 'none';
+  });
+
+  // ======== PHOTO PREVIEW ========
+  const photoInput = document.getElementById('productPhotos');
+  const photoPreview = document.getElementById('photoPreview');
+
+  if (photoInput) {
+    photoInput.addEventListener('change', () => {
+      photoPreview.innerHTML = '';
+      const files = photoInput.files;
+      Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.style.width = '80px';
+          img.style.height = '80px';
+          img.style.objectFit = 'cover';
+          img.style.borderRadius = '6px';
+          img.style.marginRight = '5px';
+          photoPreview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+  }
+
+});
+</script>
+

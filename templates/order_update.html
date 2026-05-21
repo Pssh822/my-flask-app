@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Order Update</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='my_account.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+        .header-actions a img {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-right: 5px;
+        font-weight: 100;
+      }
+
+      .logout-btn {
+        color: rgb(255, 255, 255);
+        margin-left: 10px;
+        text-decoration: none;
+
+      }
+      .logout-btn:hover {
+        text-decoration: underline;
+      }
+      .user-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-photo {
+        width: 25px !important;
+        height: 25px !important;
+        border-radius: 50%;
+        object-fit: cover;
+        background: none !important;
+        filter: none !important;
+        opacity: 1 !important;
+        display: inline-block;
+      }
+
+      .user-btn {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;                  /* Adds space between elements */
+        cursor: pointer;
+      }
+
+      .user-email {
+        font-size: 12px;
+        color: white;
+      }
+
+      .user-btn:hover .user-email,
+      .user-btn:hover .arrow {
+        color: #ffcc00; /* Optional highlight color */
+      }
+
+
+      .user-btn img {
+        width: 200px;
+        height: 200px;
+        margin-right: -1px;
+        margin-left: 5px;
+      }
+
+      .user-btn .arrow {
+        margin-left: 5px;
+        font-size: 8px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        z-index: 10;
+        right: 0;
+      }
+
+      .dropdown-content a {
+        display: block;
+        padding: 10px 14px;
+        color: #000000;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #9d9d9d;
+        color: #ffffff;
+      }
+
+      .user-dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .profile-photo {
+        width: clamp(25px, 3vw, 50px);  /* Minimum 25px, scales up to 50px */
+        height: clamp(25px, 3vw, 50px);
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+    /* Keep your existing header CSS */
+    .header-actions a img {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+      font-weight: 100;
+    }
+    .logout-btn { color: white; margin-left: 10px; text-decoration: none; }
+    .logout-btn:hover { text-decoration: underline; }
+
+    .user-dropdown { position: relative; display: inline-block; }
+    .profile-photo {
+      width: clamp(25px, 3vw, 50px);
+      height: clamp(25px, 3vw, 50px);
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .user-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .user-email { font-size: 12px; color: white; }
+    .user-btn:hover .user-email, .user-btn:hover .arrow { color: #ffcc00; }
+    .user-btn .arrow { margin-left: 5px; font-size: 8px; }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      z-index: 10;
+      right: 0;
+    }
+    .dropdown-content a {
+      display: block;
+      padding: 10px 14px;
+      color: #000;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .dropdown-content a:hover {
+      background-color: #9d9d9d;
+      color: #fff;
+    }
+    .user-dropdown:hover .dropdown-content { display: block; }
+    .modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4); 
+}
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
+}
+.close:hover {
+  color: #000;
+}
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="{{ url_for('homepage') }}" class="logo">FitHub</a>
+
+<div class="search-bar">
+  <form action="{{ url_for('category') }}" method="get">
+    <input type="text" name="q" placeholder="Search for products..." required>
+    <button type="submit">
+      <img src="{{ url_for('static', filename='magnifier.png') }}" alt="Search">
+    </button>
+  </form>
+</div>
+    <!-- Right actions -->
+    <div class="header-actions">
+      <a href="{{ url_for('signup') }}" target="_blank" rel="noopener noreferrer">
+        <img src="/static/store.png" alt="Sell"> Start Selling
+      </a>
+      <a href="{{ url_for('add_to_cart') }}">
+      <span class="cart-badge {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count }}</span>
+          <img src="/static/shopping-cart.png" alt="Cart"> Cart
+      </a>
+        {% if session.get('loggedin') %}
+        <div class="user-dropdown">
+          <button class="user-btn">
+          <img 
+            src="{{ url_for('static', filename='uploads/sellers/' + session['photo']) }}" 
+            alt="Profile Photo" 
+            class="profile-photo"
+          >
+          <span class="user-email">{{ session['email'] }}</span>
+          <span class="arrow">▼</span>
+        </button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('purchase') }}">My Purchase</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+        {% else %}
+          <a href="/login"><img src="/static/enter (1).png" alt="User"> Login / Sign Up</a>
+        {% endif %}
+
+    </div>
+  </header>
+<div class="categories-bar">  
+  <ul>
+    <button class="scroll-left">‹</button>
+   <li class="dropdown"><a href="#" data-target="camping&hikinggear">Camping & Hiking Gear</a></li>
+    <li class="dropdown"><a href="#" data-target="cycling&bikes">Cycling & Bikes</a></li>
+    <li class="dropdown"><a href="#" data-target="fitnessequipment">Fitness Equipment</a></li>
+    <li class="dropdown"><a href="#" data-target="sportsapparel">Sports Apparel</a></li>
+    <li class="dropdown"><a href="#" data-target="teamsportsequipment">Team Sports Equipment</a></li>
+    <li class="dropdown"><a href="#" data-target="watersports">Water Sports</a></li>
+    <button class="scroll-right">›</button>
+  </ul>
+
+  <!-- Shared Mega Dropdown -->
+  <div class="mega-dropdown">
+    <!-- Sidebar (column 1) -->
+<div class="mega-sidebar">
+    {% for main, categories in category_tree.items() %}
+        {% for category, cat_data in categories.items() %}
+            <a href="#" class="mega-item"
+               data-target="{{ category|lower|replace(' ', '') }}">
+               {{ category }}
+            </a>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+
+    <!-- Dynamic Content (column 2) -->
+ <div class="mega-content">
+  {% for main, categories in category_tree.items() %}
+    {% for category, cat_data in categories.items() %}
+        <div class="mega-panel" id="{{ category|lower|replace(' ', '') }}">
+            <div class="col-2">
+                <!-- "ALL" goes to main category -->
+              <div class="circle-item">
+                  <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}">
+                      <img src="{{ url_for('static', filename='images/plus.jpg') }}">
+                      <p>ALL</p>
+                  </a>
+              </div>
+                {% for sub in cat_data.subcats %}
+                <div class="circle-item">
+                    <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}&sub={{ sub.name|urlencode }}">
+                        <img src="{{ url_for('static', filename='images/' + sub.image) }}" alt="{{ sub.name }}">
+                        <p>{{ sub.name }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+  </div>
+</div>
+
+  <!-- Account Page Container -->
+  <div class="account-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul class="menu">
+        <li class="menu-item open">
+          <a href="#" class="menu-link">Account</a>
+          <ul class="submenu">
+            <li><a href="{{ url_for('my_account') }}">Profile</a></li>
+            <li><a href="{{ url_for('bank') }}">Banks & Cards</a></li>
+            <li><a href="{{ url_for('addresses') }}">Addresses / Change Password</a></li>
+            <li><a href="{{ url_for('privacy') }}">Privacy Settings</a></li>
+            <li><a href="{{ url_for('notification') }} ">Notification Settings</a></li>
+          </ul>
+        </li>
+
+        <li class="menu-item">
+          <a href="{{ url_for('purchase') }}" class="menu-link">My Purchase</a>
+        </li>
+
+        <li class="menu-item">
+          <a href="#" class="menu-link active">Notification</a>
+          <ul class="submenu show">
+            <li><a href="{{ url_for('order_update') }}"  class="active">Order Updates</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+<div class="order-list">
+  {% for o in orders %}
+    {% for item in o['items'] %}
+      <div class="order-item">
+        <img src="{{ url_for('static', filename='uploads/sellers/' + item['photo']) }}" alt="Product" class="order-img">
+        <div class="order-info">
+          <h3>Parcel {{ item['status'] }}</h3>
+          <p>Parcel <strong>{{ item['name'] }}</strong> for your order <strong>{{ o['order']['order_id'] }}</strong> has been {{ item['status'] | lower }}.</p>
+          <span class="order-date">{{ o['order']['created_at'].strftime('%m/%d/%Y %H:%M') }}</span>
+        </div>
+        <button class="details-btn">View Details</button>
+      </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+
+  </div>
+
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top: 200px;">
+    <p>&copy; 2025 FitHub. All Rights Reserved.</p>
+  </footer>
+
+  <div id="orderModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Order Details</h2>
+    <div id="modal-body">
+      <!-- Details will be injected here -->
+    </div>
+  </div>
+</div>
+</body>
+</html>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const menuLinks = document.querySelectorAll(".menu-link");
+
+  menuLinks.forEach(link => {
+    link.addEventListener("click", function(e) {
+      const parent = this.closest(".menu-item");
+      const submenu = parent.querySelector(".submenu");
+
+      // Only prevent navigation if there is a submenu
+      if (submenu) {
+        e.preventDefault();
+        submenu.classList.toggle("show");
+        parent.classList.toggle("open");
+      }
+    });
+  });
+});
+</script>
+
+<script>
+(function() {
+  const body = document.documentElement; // to set CSS vars
+  const headerEl = document.querySelector('header');
+  const catEl = document.querySelector('.categories-bar');
+  const wrapper = document.body; // we add class on body to collapse/restore
+  let lastScrollTop = 0;
+  let ticking = false;
+
+  if (!headerEl || !catEl) return;
+
+  // set initial CSS vars and body spacing
+  function updateHeights() {
+    const h = headerEl.getBoundingClientRect().height || 64;
+    const c = catEl.getBoundingClientRect().height || 56;
+    body.style.setProperty('--header-height', `${h}px`);
+    body.style.setProperty('--categories-height', `${c}px`);
+    // add padding to body content to avoid overlap
+    // create or apply class on body (so site content gets spacing)
+    document.body.classList.add('site-top-spacing');
+  }
+
+  // Run once and on resize (header/cat may change size)
+  updateHeights();
+  window.addEventListener('resize', () => {
+    updateHeights();
+  });
+
+  // scroll handler — throttle with requestAnimationFrame
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // small threshold to avoid toggle on micro-scrolls
+        const delta = scrollTop - lastScrollTop;
+
+        if (Math.abs(delta) > 5) {
+          if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // scrolling down -> collapse
+            document.body.classList.add('header-collapsed');
+          } else {
+            // scrolling up -> show
+            document.body.classList.remove('header-collapsed');
+          }
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // If you want categories to stay visible while header hides, use:
+  // document.body.classList.add('header-only-mode'); and adjust CSS accordingly (I can show if needed)
+})();
+</script>
+
+
+
+<script>
+  document.querySelectorAll(".mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
+  });
+});
+
+// Show mega dropdown when hovering any top nav
+document.querySelectorAll(".categories-bar ul li").forEach(item => {
+  item.addEventListener("mouseenter", () => {
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+</script>
+<script>
+document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseover", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.add("highlight");
+      }
+    });
+  });
+
+  link.addEventListener("mouseout", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.remove("highlight");
+      }
+    });
+  });
+});
+
+</script>
+<script>
+  document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    if (!target) return; // skip if no target
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    const panel = document.getElementById(target);
+    if (panel) panel.classList.add("active");
+    
+    // show dropdown when hovering top bar
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+// hide when mouse leaves whole dropdown + bar
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+document.querySelector(".mega-dropdown").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+</script>
+<script>
+const catBar = document.querySelector(".categories-bar ul");
+const leftBtn = document.querySelector(".scroll-left");
+const rightBtn = document.querySelector(".scroll-right");
+
+function updateArrows() {
+  const scrollLeft = catBar.scrollLeft;
+  const maxScroll = catBar.scrollWidth - catBar.clientWidth;
+
+  // Show left arrow only if content scrolled right
+  leftBtn.style.display = scrollLeft > 0 ? "block" : "none";
+
+  // Show right arrow only if content is overflowing
+  rightBtn.style.display = scrollLeft < maxScroll ? "block" : "none";
+}
+
+// Scroll behavior
+leftBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: -150, behavior: "smooth" });
+});
+rightBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: 150, behavior: "smooth" });
+});
+
+// Update arrows on load, resize, and scroll
+window.addEventListener("load", updateArrows);
+window.addEventListener("resize", updateArrows);
+catBar.addEventListener("scroll", updateArrows);
+
+</script>
+<script>
+document.querySelectorAll(".details-btn").forEach((btn, index) => {
+  btn.addEventListener("click", function() {
+    const orderItem = btn.closest(".order-item");
+    const orderInfo = orderItem.querySelector(".order-info").innerHTML;
+    const modalBody = document.getElementById("modal-body");
+
+    // Inject order info into modal
+    modalBody.innerHTML = orderInfo;
+
+    // Show modal
+    document.getElementById("orderModal").style.display = "block";
+  });
+});
+
+// Close modal when clicking the X
+document.querySelector(".close").addEventListener("click", () => {
+  document.getElementById("orderModal").style.display = "none";
+});
+
+// Close modal when clicking outside content
+window.addEventListener("click", (event) => {
+  const modal = document.getElementById("orderModal");
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+});
+</script>

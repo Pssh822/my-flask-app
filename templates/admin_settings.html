@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_settings.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo" />
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li class="active"><a href="{{ url_for('admin_settings') }}">Settings</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <h1>Settings</h1>
+      <div class="profile">
+        <img src="static/images/profile_icon.png" alt="Admin">
+        <span>Admin</span>
+      </div>
+    </div>
+
+    <!-- Account Settings -->
+    <section class="settings-section">
+      <h2>Account Information</h2>
+      <div class="settings-card">
+        <form>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" value="John Admin">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" value="admin@fithubexpress.com">
+          </div>
+          <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" value="+63 912 345 6789">
+          </div>
+          <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Notification Settings -->
+    <section class="settings-section">
+      <h2>Notification Preferences</h2>
+      <div class="settings-card">
+        <label><input type="checkbox" checked> Email notifications for new orders</label><br>
+        <label><input type="checkbox" checked> Email alerts for system updates</label><br>
+        <label><input type="checkbox"> Text notifications for deliveries</label><br>
+        <label><input type="checkbox" checked> Marketing and promotional updates</label>
+      </div>
+    </section>
+
+    <!-- Appearance -->
+    <section class="settings-section">
+      <h2>Theme & Appearance</h2>
+      <div class="settings-card">
+        <label>Choose Theme:</label>
+        <select>
+          <option>Dark Mode</option>
+          <option>Light Mode</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Security -->
+    <section class="settings-section">
+      <h2>Security</h2>
+      <div class="settings-card">
+        <form>
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" placeholder="Enter current password">
+          </div>
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" placeholder="Enter new password">
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password</label>
+            <input type="password" placeholder="Confirm new password">
+          </div>
+          <button type="submit" class="save-btn">Update Password</button>
+        </form>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

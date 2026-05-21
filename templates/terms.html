@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms & Conditions | FitHub</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    /* Header */
+    header {
+      background: #fff;
+      padding: 15px 40px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    header h1 {
+      color: #ff4c29;
+      font-size: 1.8rem;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 900px;
+      background: #fff;
+      margin: 30px auto 50px auto;
+      padding: 50px 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    h1, h2, h3 {
+      color: #ff4c29;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 50px;
+      font-weight: 600;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      border-left: 4px solid #ff4c29;
+      padding-left: 10px;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 15px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin: 10px 0 20px 30px;
+      list-style-type: disc;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 50px 0;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+      margin-top: 50px;
+      line-height: 1.5;
+    }
+
+    /* Optional: make lists a bit prettier */
+    ul li::marker {
+      color: #ff4c29;
+      font-weight: bold;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+      header h1 {
+        font-size: 1.4rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with logo -->
+  <header>
+    <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="FitHub Logo">
+    <h1>FitHub</h1>
+  </header>
+
+  <div class="container">
+    <h1>FitHub Terms & Conditions</h1>
+
+    <h2>1. Introduction</h2>
+    <p>Welcome to <strong>FitHub</strong> — an e-commerce platform that connects fitness enthusiasts, sellers, and delivery riders. By creating an account or using our services, you agree to the following Terms and Conditions. Please read carefully before using the platform.</p>
+
+    <h2>2. User Accounts</h2>
+    <h3>Buyers</h3>
+    <p>Buyers may browse and purchase products such as fitness gear, supplements, apparel, and equipment. By registering, buyers agree to provide accurate personal details and maintain account confidentiality.</p>
+
+    <h3>Sellers</h3>
+    <p>Sellers are businesses or individuals offering legitimate fitness-related products. Sellers must ensure all listings are accurate, comply with consumer laws, and do not infringe on intellectual property rights. FitHub reserves the right to suspend sellers who violate platform standards.</p>
+
+    <h3>Riders</h3>
+    <p>Riders are responsible for safely and promptly delivering orders. They must maintain professionalism, verify deliveries through the FitHub app, and comply with all applicable traffic and safety regulations.</p>
+
+    <h2>3. Ordering and Payments</h2>
+    <p>All transactions on FitHub are processed securely. Buyers agree to pay the total order amount, including delivery fees and taxes. Sellers will receive payouts through registered payment methods after each successful delivery.</p>
+
+    <h2>4. Returns and Refunds</h2>
+    <ul>
+      <li>Buyers may request returns within 7 days for defective or incorrect items.</li>
+      <li>Refunds will be processed once the returned item is verified by the seller.</li>
+      <li>Delivery fees are non-refundable unless the issue is caused by the seller or rider.</li>
+    </ul>
+
+    <h2>5. Prohibited Activities</h2>
+    <ul>
+      <li>Posting or selling counterfeit, unsafe, or restricted items.</li>
+      <li>Misuse of buyer, seller, or rider accounts for fraudulent activities.</li>
+      <li>Harassment or abusive behavior toward other users or staff.</li>
+    </ul>
+
+    <h2>6. Limitation of Liability</h2>
+    <p>FitHub shall not be liable for any direct or indirect damages resulting from misuse of the platform, product defects, or delays caused by third-party providers.</p>
+
+    <h2>7. Modifications</h2>
+    <p>FitHub reserves the right to modify these Terms at any time. Continued use of the platform signifies acceptance of updated terms.</p>
+
+    <hr />
+    <h1 id="privacy-policy">Data Privacy Policy</h1>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect personal information necessary for your account and transactions, including:</p>
+    <ul>
+      <li>Full name, email address, and contact number</li>
+      <li>Delivery address, location data (for riders)</li>
+      <li>Payment details and transaction history</li>
+      <li>Uploaded identification and business permits (for sellers)</li>
+    </ul>
+
+    <h2>2. How We Use Your Information</h2>
+    <ul>
+      <li>To verify your identity and maintain your account</li>
+      <li>To process and deliver orders</li>
+      <li>To communicate updates, promotions, and important notifications</li>
+      <li>To improve our services and ensure safety for all users</li>
+    </ul>
+
+    <h2>3. Data Sharing and Disclosure</h2>
+    <p>Your information may be shared only with authorized parties:</p>
+    <ul>
+      <li>Delivery riders for order fulfillment</li>
+      <li>Payment gateways for secure transactions</li>
+      <li>Government agencies when required by law</li>
+    </ul>
+    <p>We never sell or rent your personal data to third parties.</p>
+
+    <h2>4. Data Retention</h2>
+    <p>We retain your information for as long as your account remains active or as required by law. You may request account deletion anytime via support.</p>
+
+    <h2>5. Data Protection</h2>
+    <p>All user data is encrypted and stored securely. We use SSL encryption and access control to prevent unauthorized access or misuse of personal information.</p>
+
+    <h2>6. Your Rights</h2>
+    <ul>
+      <li>Access and request a copy of your data</li>
+      <li>Request correction or deletion of inaccurate data</li>
+      <li>Withdraw consent for marketing communications</li>
+    </ul>
+
+    <h2>7. Contact Information</h2>
+    <p>If you have questions or privacy concerns, please contact our Data Protection Officer at <strong>support@fithub.ph</strong>.</p>
+
+    <footer>
+      © 2025 FitHub. All rights reserved. <br />
+      Last Updated: November 2025
+    </footer>
+  </div>
+</body>
+</html>

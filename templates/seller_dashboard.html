@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='seller_dashboard.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+          <div class="logo">
+          <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+          <h2>Seller Panel</h2>
+        </div>
+      </div>
+      <ul class="sidebar-menu">
+        <li class="active"><a href="{{ url_for('seller_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('seller_products') }}">My Products</a></li>
+        <li><a href="{{ url_for('seller_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('seller_earnings') }}">Earnings</a></li>
+        <li><a href="{{ url_for('seller_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('seller_settings') }}">Settings</a></li>
+        <li class="logout"><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="topbar">
+        <h1>Dashboard Overview</h1>
+        <div class="seller-profile">
+          <img src="{{ session.get('store_logo', url_for('static', filename='uploads/sellers/default-user.jpg')) }}" alt="Profile">
+          <span>Welcome Back, </span><span class="user-email">{{ session['first_name'] }}</span>
+        </div>
+      </header>
+
+      <!-- Overview Cards -->
+    <section class="overview">
+      <div class="card">
+        <h3>Total Sales</h3>
+        <p>₱{{ "{:,.2f}".format(total_sales) }}</p>
+      </div>
+      <div class="card">
+        <h3>Products</h3>
+        <p>{{ products_count }}</p>
+      </div>
+      <div class="card">
+        <h3>Orders</h3>
+        <p>{{ orders_count }}</p>
+      </div>
+      <div class="card">
+        <h3>Earnings</h3>
+        <p>₱{{ "{:,.2f}".format(total_earnings) }}</p>
+      </div>
+    </section>
+
+      <!-- Chart Area -->
+      <section class="chart-section">
+        <div class="chart-placeholder">
+          <h3>Sales Overview</h3>
+          <p>For every product sold, the platform earns <strong>10%</strong> while you, the seller, keep <strong>90%</strong> of the product price.</p>
+        </div>
+      </section>
+
+      <!-- Recent Orders -->
+      <section class="recent-orders">
+        <h3>Recent Orders</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Product</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+<tbody>
+{% for order in recent_orders %}
+<tr>
+  <td>#{{ order['order_id'] }}</td>
+  <td>{{ order['product_name'] }}</td>
+  <td>{{ order['customer_name'] }}</td>
+  <td>{{ order['created_at'].strftime('%b %d, %Y') }}</td>
+  <td><span class="status {{ order['status']|lower }}">{{ order['status'] }}</span></td>
+  <td>₱{{ "{:,.2f}".format(order['total_price']) }}</td>
+</tr>
+{% endfor %}
+</tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+<script>
+  const ctx = document.createElement('canvas');
+  document.querySelector('.chart-placeholder').appendChild(ctx);
+
+  const salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+          labels: {{ chart_months|tojson }},
+          datasets: [{
+              label: 'Sales (₱)',
+              data: {{ chart_sales|tojson }},
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              fill: true,
+              tension: 0.3
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Deliveries - Driver Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='driver_deliveries.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHubExpress</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('driver_dashboard') }}">Dashboard</a></li>
+        <li class="active"><a href="{{ url_for('driver_deliveries') }}">My Deliveries</a></li>
+        <li><a href="{{ url_for('driver_earnings') }}">Earnings</a></li>
+        <li><a href="{{ url_for('driver_performance') }}">Performance</a></li>
+        <li><a href="{{ url_for('driver_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('driver_settings') }}">Settings</a></li>
+        <li><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="page-title">Message</div>
+      <div class="profile">
+        <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="Driver Profile">
+        <span>Driver Name:</span><span class="user-email">{{ session['first_name'] }}</span>
+      </div>
+    </header>
+
+    <section class="deliveries-list">
+      <h2>Active Deliveries</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Address</th>
+            <th>Pickup Time</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+          <tbody>
+            {% for d in deliveries %}
+            <tr>
+              <td>#ORD-{{ d.order_id }}</td>
+              <td>{{ d.full_name }}</td>
+              <td>{{ d.address }}</td>
+              <td>{{ d.created_at.strftime('%I:%M %p') }}</td>
+                <td>
+                  {% for item in d.order_items %}
+                    {{ item.product_name }} ({{ item.variation }}) - {{ item.item_status }}<br>
+                  {% endfor %}
+
+                </td>
+              <td>
+                {% if d.item_status == 'Shipped' or d.item_status == 'Delivery' %}
+                  <a href="{{ url_for('driver_order_details', order_id=d.order_id) }}" class="view-btn">View</a>
+                {% else %}
+                  <button class="view-btn">Details</button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+
+      </table>
+    </section>
+
+<section class="deliveries-history">
+  <h2>Delivery History</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Customer</th>
+        <th>Date Delivered</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Earnings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for h in delivery_history %}
+      <tr>
+        <td>#ORD-{{ h.order_id }}</td>
+        <td>{{ h.full_name }}</td>
+        <td>{{ h.delivered_at.strftime('%b %d, %Y') }}</td>
+        <td>{{ h.payment_method }}</td>
+        <td>
+          {% if h.status == 'Cancelled' %}
+            <span class="status cancelled">Cancelled</span>
+          {% else %}
+            <span class="status completed">Delivered</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if h.status == 'Cancelled' %}
+            ₱0
+          {% else %}
+            ₱{{ h.earning }}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+  </main>
+
+  <!-- Sticky Footer -->
+  <footer class="footer-bar">
+    <div class="footer-content">
+      <p>Ready for your next delivery?</p>
+      <button class="start-btn">Start New Delivery</button>
+    </div>
+  </footer>
+</body>
+</html>
+<script>
+function startDelivery(orderId) {
+    fetch(`/driver/order/${orderId}/update_status`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: 'Shipped'})
+    }).then(res => res.json())
+      .then(data => {
+          if(data.success) location.reload();
+      });
+}
+</script>
+<script>
+function updateStatus(orderId, itemId, newStatus) {
+    fetch(`/driver/order/${orderId}/update_status`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: newStatus,item_id: itemId})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            // refresh page so delivered orders move to history
+            location.reload();
+        } else {
+            alert("Failed to update status.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error updating status.");
+    });
+}
+</script>
+<script>
+  
+</script>

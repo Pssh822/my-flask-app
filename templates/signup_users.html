@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up | FitHub</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+
+    body {
+      background: url("{{ url_for('static', filename='bg_background.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1200px;
+      background: rgba(18,18,18,0.95);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    }
+
+    /* LEFT SIDE (Image + tagline) */
+    .left-box {
+      position: relative;
+      width: 45%;
+      background: #111;
+    }
+    .left-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.9);
+    }
+    .left-box .overlay {
+        position:absolute;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:60%; /* adjust how tall the fade is */
+        background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(0,0,0,0.8) 100%);
+    }
+    .tagline {
+      position: absolute;
+      bottom: 5%;
+      left: 10%;
+    }
+    .tagline h1 {
+      font-size: 30px;
+      color: #ff4c29;
+      font-weight: 600;
+    }
+    .tagline p {
+      color: #ddd;
+      margin-top: 5px;
+    }
+    .signup-container{font-size:13px;text-align:center;margin-top:14px;color:#bbb}
+    .signup-container a{color:#ff4c29;text-decoration:none;font-weight:600}
+    /* RIGHT SIDE (Form steps) */
+    .right-box {
+    width: 55%;
+    padding: 30px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* so it doesn’t center everything */
+    height: 90vh; /* full height */
+    overflow: hidden; /* prevent double scroll */
+    }
+
+    .form-wrapper {
+    flex: 1;
+    overflow-y: auto; /* ✅ only form scrolls */
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ff4c29 #111;
+    max-height: calc(100vh - 200px); /* adjust if needed for top space */
+}
+
+    .account-types {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .type-btn {
+      flex: 1;
+      padding: 10px 72px;
+      border-radius: 8px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+    .type-btn.active {
+      background: #ff4c29;
+      border-color: #ff4c29;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      background: #1a1a1a;
+      color: #fff;
+      border: 1px solid #333;
+    }
+    input[type="email"] {
+    width: 450px; /* or any size you want */
+    }
+    .btn-next, .btn-prev, .btn-submit {
+      background: #ff4c29;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: .2s;
+    }
+    .btn-next:hover, .btn-prev:hover, .btn-submit:hover {
+      opacity: 0.8;
+    }
+
+    .form-step {
+      display: none;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .form-step.active {
+      display: flex;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .step {
+      width: 32%;
+      text-align: center;
+      padding: 5px 0;
+      border-bottom: 3px solid #444;
+      color: #888;
+    }
+    .step.active {
+      border-color: #ff4c29;
+      color: #fff;
+    }
+
+    .otpBtn {
+      padding: 8px 14px;
+      background: #ff4c29;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .otpBtnNumber {
+      padding: 8px 14px;
+      background: #ff4c29;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+.terms-label {
+    font-size: 12px;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    }
+
+    .terms-label input {
+    margin: 0;
+    }
+
+    .terms-label .highlight {
+    color: #ff4c29;
+    font-weight: 600;
+    }
+    .otp-msg {
+      font-size: 12px;
+      margin-top: -8px;
+      margin-bottom: 8px;
+      text-align: left;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+        .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-wrapper input {
+        width: 100%;
+        padding-right: 40px;
+    }
+
+    .eye-toggle {
+        position: absolute;
+        right: 10px;
+        top: 60%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        opacity: 0.7;
+        filter: invert(50%);
+    }
+    .eye-toggle:hover {
+        opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- LEFT -->
+    <div class="left-box">
+      <img src="{{ url_for('static', filename='fitness_pic_1.jpeg') }}" alt="Promo Image">
+      <div class="overlay"></div>
+      <div class="tagline">
+        <h1>Where Fitness Meets Business</h1>
+        <p>Show your strength — start selling today.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-box">
+      <h2>Seller Registration</h2>
+      <p style="margin-bottom:15px;">Follow the steps to complete your account setup</p>
+
+      <!-- Buttons -->
+      <div class="account-types">
+        <a href="{{ url_for('signup_users') }}"><button class="type-btn active">Buyer</button></a>
+        <a href="{{ url_for('signup_sellers') }}"><button class="type-btn">Seller</button></a>
+        <a href="{{ url_for('signup_rider') }}"><button class="type-btn">Rider</button></a>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step active">Step 1</div>
+        <div class="step">Step 2</div>
+        <div class="step">Step 3</div>
+      </div>
+      <div class="form-wrapper">
+      <form method="POST" action="/signup_users" enctype="multipart/form-data" id="sellerForm">
+            {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="color:red; text-align:center;">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+        <!-- STEP 1 -->
+        <div class="form-step active">
+          <h3>Basic Information</h3>
+          <input type="text" name="first_name" value="{{ form.get('first_name', '') }}" placeholder="First Name" required>
+          <input type="text" name="middle_name" value="{{ form.get('middle_name', '') }}" placeholder="Middle Name" required>
+          <input type="text" name="last_name" value="{{ form.get('last_name', '') }}" placeholder="Last Name" required>
+          <input type="text" name="suffix" value="{{ form.get('suffix', '') }}" placeholder="Suffix" >
+          <div style="display:flex;gap:10px;">
+            <input type="email" name="email" value="{{ form.get('email', '') }}" placeholder="Email Address" required>
+            <button type="button" class="otpBtn">Send Code</button>
+          </div>
+          <input type="text" name="otp_code" value="{{ form.get('otp_code', '') }}" placeholder="Enter OTP Code" >
+          <button type="button" class="btn-next">Next</button>
+
+          <div class="signup-container">Already have an account? <a href="{{ url_for('login') }}">Login</a></div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="form-step">
+          <h3>Security & Payout</h3>
+          <div class="password-wrapper">
+          <input type="password" name="password" id="password" value="{{ form.get('password', '') }}" placeholder="Password (min 8 chars)" required>
+          <img src="/static/hide.png" class="eye-toggle" onclick="togglePassword('password', this)">
+          </div>
+          <div class="password-wrapper">
+          <input type="password" name="confirm_password" id="confirm_password" value="{{ form.get('confirm_password', '') }}" placeholder="Confirm Password" required>
+            <img src="/static/hide.png" class="eye-toggle" onclick="togglePassword('confirm_password', this)">
+          </div>
+            <input 
+                type="text" 
+                name="mobile" 
+                value="{{ form.get('mobile', '') }}" 
+                placeholder="Mobile Number (11 digits)" 
+                required
+                maxlength="11" 
+                inputmode="numeric"
+                pattern="\d{11}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+            >
+
+          <input type="text" name="payout" value="{{ form.get('payout', '') }}" placeholder="GCash / Maya / Bank Account" required>
+          <button type="button" class="btn-prev">Previous</button>
+          <button type="button" class="btn-next">Next</button>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="form-step">
+          <h3>Address Information</h3>
+
+          <select id="region" name="region" value="{{ form.get('region', '') }}" required>
+            <option value="" disabled selected>Choose Region</option>
+            <option value="Metro Manila">Metro Manila</option>
+            <option value="Mindanao">Mindanao</option>
+            <option value="North Luzon">North Luzon</option>
+            <option value="South Luzon">South Luzon</option>
+            <option value="Visayas">Visayas</option>
+          </select>
+
+          <select id="province" name="province" value="{{ form.get('province', '') }}" required disabled>
+            <option value="" disabled selected>Choose Province</option>
+          </select>
+
+          <select id="city" name="city" value="{{ form.get('city', '') }}" required disabled>
+            <option value="" disabled selected>Choose City / Municipality</option>
+          </select>
+
+          <select id="barangay" name="barangay" value="{{ form.get('barangay', '') }}" required disabled>
+            <option value="" disabled selected>Choose Barangay</option>
+          </select>  
+
+
+            <input type="text" name="postal" value="{{ form.get('postal', '') }}" maxlength="4" 
+                inputmode="numeric"
+                pattern="\d{4}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'');"  placeholder="Postal Code" required>
+
+            <input type="text" name="street" value="{{ form.get('street', '') }}" placeholder="Street Name, Building, House No." required>
+
+            <div class="terms">
+                <label class="terms-label">
+                    <input type="checkbox" id="agreeCheck" required>
+                    I agree to the 
+                
+
+          <a href="{{ url_for('terms') }}" target="_blank" class="highlight">Terms & Conditions</a> and 
+          <a href="{{ url_for('terms') }}#privacy-policy" target="_blank" class="highlight">Privacy Policy</a>
+                </label>
+            </div>
+          <button type="button" class="btn-prev">Previous</button>
+          <button type="submit" class="btn-submit">Create Account</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function togglePassword(fieldId, img) {
+    const field = document.getElementById(fieldId);
+
+    if (field.type === "password") {
+        field.type = "text";
+        img.src = "/static/view.png"; // image when visible
+    } else {
+        field.type = "password";
+        img.src = "/static/hide.png"; // image when hidden
+    }
+}
+</script>
+<script>
+// ===============================
+// LOCATION DATA
+// ===============================
+const data = {
+
+  "South Luzon": {
+    "Laguna": {
+      "Biñan": ["San Antonio", "San Francisco", "Sto. Tomas"],
+      "Calamba": ["Bañadero", "Batino", "Lawa"],
+      "Santa Cruz": ["Alipit", "Bagumbayan", "Barangay Poblacion I", "Barangay Poblacion II", "Barangay Poblacion III", "Barangay Poblacion IV", "Barangay Poblacion V"]
+    },
+    "Batangas": {
+      "Batangas City": ["Pallocan", "Sta. Rita", "Alangilan"],
+      "Lipa": ["Sabang", "Sico", "Tambo"]
+    },
+    "Albay": {
+      "Legazpi": ["Bogtong", "Bigaa", "Rawis"],
+      "Tabaco": ["Basud", "Panal", "Quinale"]
+    }
+  },
+
+  "Metro Manila": {
+    "Metro Manila": {
+      "Binondo": ["Barangay 287", "Barangay 288","Barangay 289", "Barangay 290", "Barangay 291", "Barangay 292","Barangay 293", "Barangay 294","Barangay 295", "Barangay 296"],
+      "Caloocan City": ["Barangay 1", "Barangay 100", "Barangay 101", "Barangay 102","Barangay 103", "Barangay 104", "Barangay 105", "Barangay 106", "Barangay 107", "Barangay 108", "Barangay 109", "Barangay 11","Barangay 110", "Barangay 111", "Barangay 112", "Barangay 113"]
+    },
+  }
+
+  // You can add Visayas, Mindanao, etc
+};
+
+
+// ===============================
+// ELEMENTS
+// ===============================
+const region = document.getElementById("region");
+const province = document.getElementById("province");
+const city = document.getElementById("city");
+const barangay = document.getElementById("barangay");
+
+
+// AUTO GENERATION FUNCTIONS
+function resetSelect(select, placeholder) {
+  select.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+}
+
+
+// ===============================
+// ON REGION CHANGE
+// ===============================
+region.addEventListener("change", () => {
+  const selectedRegion = region.value;
+
+  resetSelect(province, "Choose Province");
+  resetSelect(city, "Choose City / Municipality");
+  resetSelect(barangay, "Choose Barangay");
+
+  province.disabled = false;
+  city.disabled = true;
+  barangay.disabled = true;
+
+  // Insert provinces
+  if (data[selectedRegion]) {
+    Object.keys(data[selectedRegion]).forEach(prov => {
+      const option = document.createElement("option");
+      option.value = prov;
+      option.textContent = prov;
+      province.appendChild(option);
+    });
+  }
+});
+
+
+// ===============================
+// ON PROVINCE CHANGE
+// ===============================
+province.addEventListener("change", () => {
+  const selectedRegion = region.value;
+  const selectedProvince = province.value;
+
+  resetSelect(city, "Choose City / Municipality");
+  resetSelect(barangay, "Choose Barangay");
+
+  city.disabled = false;
+  barangay.disabled = true;
+
+  if (data[selectedRegion][selectedProvince]) {
+    Object.keys(data[selectedRegion][selectedProvince]).forEach(cty => {
+      const option = document.createElement("option");
+      option.value = cty;
+      option.textContent = cty;
+      city.appendChild(option);
+    });
+  }
+});
+
+
+// ===============================
+// ON CITY CHANGE
+// ===============================
+city.addEventListener("change", () => {
+  const selectedRegion = region.value;
+  const selectedProvince = province.value;
+  const selectedCity = city.value;
+
+  resetSelect(barangay, "Choose Barangay");
+
+  barangay.disabled = false;
+
+  if (data[selectedRegion][selectedProvince][selectedCity]) {
+    data[selectedRegion][selectedProvince][selectedCity].forEach(brgy => {
+      const option = document.createElement("option");
+      option.value = brgy;
+      option.textContent = brgy;
+      barangay.appendChild(option);
+    });
+  }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('.otpBtn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const emailField = document.querySelector('input[name="email"]');
+    const otpField = document.querySelector('input[name="otp_code"]');
+    const message = document.createElement('p');
+    message.style.fontSize = '12px';
+    message.style.marginTop = '5px';
+
+    // Remove previous message if it exists
+    const oldMessage = otpField.nextElementSibling;
+    if (oldMessage && oldMessage.tagName === 'P') oldMessage.remove();
+
+    if (!emailField.value) {
+      message.textContent = "⚠️ Please enter an active email first.";
+      message.style.color = "#ff6b6b";
+      otpField.insertAdjacentElement("afterend", message);
+      return;
+    }
+
+    try {
+      const res = await fetch("/send_otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailField.value })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        message.textContent = "✅ A code has been sent to your email.";
+        message.style.color = "#4caf50";
+      } else {
+        message.textContent = "⚠️ " + data.message;
+        message.style.color = "#ff6b6b";
+      }
+    } catch (err) {
+      message.textContent = "❌ Error sending OTP. Try again later.";
+      message.style.color = "#ff6b6b";
+    }
+
+    otpField.insertAdjacentElement("afterend", message);
+  });
+});
+</script>
+
+  <script>
+const steps = document.querySelectorAll('.form-step');
+const indicators = document.querySelectorAll('.step');
+let current = 0;
+
+function updateStep() {
+    steps.forEach((step, i) => step.classList.toggle('active', i === current));
+    indicators.forEach((s, i) => s.classList.toggle('active', i === current));
+}
+
+/* -------------------------------
+    STEP VALIDATION FUNCTIONS
+--------------------------------*/
+
+function validateStep1() {
+    const first = document.querySelector('input[name="first_name"]').value.trim();
+    const middle = document.querySelector('input[name="middle_name"]').value.trim();
+    const last = document.querySelector('input[name="last_name"]').value.trim();
+    const email = document.querySelector('input[name="email"]').value.trim();
+    const otp = document.querySelector('input[name="otp_code"]').value.trim();
+
+    if (!first || !middle || !last || !email) {
+        alert("Please complete all required fields.");
+        return false;
+    }
+
+    // Placeholder OTP logic
+    if (otp.length === 0) {
+        alert("Please enter the OTP code sent to your email.");
+        return false;
+    }
+
+    return true;
+}
+
+function validateStep2() {
+    const pass = document.querySelector('input[name="password"]').value;
+    const confirm = document.querySelector('input[name="confirm_password"]').value;
+    const mobile = document.querySelector('input[name="mobile"]').value.trim();
+    const payout = document.querySelector('input[name="payout"]').value.trim();
+
+    if (!pass || !confirm || !mobile || !payout) {
+        alert("Please complete all required fields.");
+        return false;
+    }
+
+    if (pass.length < 8) {
+        alert("Password must be at least 8 characters.");
+        return false;
+    }
+
+    if (pass !== confirm) {
+        alert("Passwords do not match!");
+        return false;
+    }
+    if (!/^09\d{9}$/.test(mobile)) {
+        alert("Mobile number must start with '09' and be exactly 11 digits.");
+        return false;
+    }
+
+    // TEMPORARY SKIP mobile OTP validation (your request)
+
+    return true;
+}
+
+function validateStep3() {
+    const requiredFields = [
+        'business_name','business_type','region',
+        'province','city','barangay','postal','street','id_file','permit_file'
+    ];
+
+    for (let name of requiredFields) {
+        const el = document.querySelector(`[name="${name}"]`);
+        if (!el || !el.value) {
+            alert("Please fill out all required fields in this step.");
+            return false;
+        }
+    }
+
+    // checkbox
+    if (!document.querySelector("#agreeCheck").checked) {
+        alert("You must agree to the Terms & Privacy Policy.");
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------
+        BUTTON CONTROLS
+--------------------------------*/
+document.querySelectorAll('.btn-next').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+
+        if (current === 0 && !validateStep1()) return;
+        if (current === 1 && !validateStep2()) return;
+
+        if (current < steps.length - 1) {
+            current++;
+            updateStep();
+        }
+    });
+});
+
+document.querySelectorAll('.btn-prev').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (current > 0) {
+            current--;
+            updateStep();
+        }
+    });
+});
+
+/* --------------------------------
+        FORM SUBMIT VALIDATION
+---------------------------------*/
+document.querySelector(".btn-submit").addEventListener("click", (e) => {
+    if (!validateStep3()) {
+        e.preventDefault();
+        return;
+    }
+});
+</script>
+
+</body>
+</html>

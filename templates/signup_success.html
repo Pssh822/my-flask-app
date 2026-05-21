@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+    <title>Account Created | FitHub</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0f0f;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .card {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(255, 76, 41, 0.4);
+            max-width: 400px;
+        }
+        h2 {
+            color: #ff4c29;
+            margin-bottom: 15px;
+        }
+        p {
+            font-size: 15px;
+            color: #ccc;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: #ff4c29;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #ff674d;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Account Created Successfully!</h2>
+        <p>Welcome, {{ username }} 🎉<br>
+        Your account has been successfully created.<br>
+        Click the button below to proceed to login.</p>
+
+        <form action="{{ url_for('login') }}">
+            <button class="btn" type="submit">Okay</button>
+        </form>
+    </div>
+</body>
+</html>

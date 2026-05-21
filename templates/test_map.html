@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <h2>Test Map</h2>
+  <div id="map" style="height: 500px;"></div>
+
+<script>
+const addresses = {{ addresses_with_coords | tojson | safe }};
+
+const map = L.map('map').setView([14.5995, 120.9842], 6); // Center somewhere in Philippines
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+}).addTo(map);
+
+const latlngs = [];
+
+addresses.forEach(a => {
+    latlngs.push([a.lat, a.lon]);
+    L.marker([a.lat, a.lon]).addTo(map).bindPopup(a.address);
+});
+
+if (latlngs.length > 1) {
+    const route = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+    map.fitBounds(route.getBounds());
+} else if (latlngs.length === 1) {
+    map.setView(latlngs[0], 14);
+}
+</script>
+</body>
+</html>

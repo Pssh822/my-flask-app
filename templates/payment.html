@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment - Review Your Order</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #333;
+  }
+
+  h2 {
+    text-align: center;
+    margin: 25px 0;
+    font-weight: 700;
+  }
+
+  .payment-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 15px 80px; /* space for button */
+  }
+
+  .payment-item {
+    display: flex;
+    gap: 15px;
+    background: #fff;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    align-items: center;
+  }
+
+  .payment-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .payment-item div {
+    flex: 1;
+  }
+
+  .payment-item h3 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .payment-item p {
+    margin: 2px 0;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .summary {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  }
+
+  .summary p {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    font-weight: 500;
+  }
+
+  .final-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e53935;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: background 0.2s;
+  }
+
+  .final-btn:hover {
+    background: #d32f2f;
+  }
+
+  @media (max-width: 600px) {
+    .payment-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .payment-item img {
+      width: 100%;
+      height: 180px;
+      margin-bottom: 10px;
+    }
+  }
+.info-container {
+  position: relative;
+  display: inline-block;
+}
+
+.info-icon {
+  font-size: 0.75rem;
+  background: #ccc;
+  padding: 2px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Tooltip */
+.info-container .tooltip-text {
+  visibility: hidden;
+  width: 220px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 10px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  top: 25px;
+  left: 0;
+  font-size: 0.75rem;
+  line-height: 1.2rem;
+
+  opacity: 0;
+  transition: opacity .2s ease-in-out;
+}
+
+.info-container:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+</style>
+</head>
+<body>
+  <div class="payment-container">
+    <h2>Review Your Order</h2>
+
+        {% for seller_id, shop in sellers.items() %}
+            <h3 style="margin-top:25px; font-weight:700;">Shop: {{ shop.business_name }}</h3>
+
+            {% for item in shop.products %}
+            <div class="payment-item">
+                <img src="{{ url_for('static', filename='uploads/sellers/' + item.variation_image) }}">
+                <div>
+                    <h3>{{ item.name }}</h3>
+                    <p>Variation: {{ item.variation }}</p>
+                    <p>Price: ₱{{ "%.2f"|format(item.total_price / item.quantity) }}</p>
+                    <p>Quantity: {{ item.quantity }}</p>
+                    <p>Total: ₱{{ item.total_price }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% endfor %}
+
+
+       
+<div class="summary">
+  <h3>Shipping Information</h3>
+  <p><span><b>Name:</b></span> <span>{{ full_name }}</span></p>
+  <p><span><b>Mobile:</b></span> <span>{{ mobile }}</span></p>
+  <p><span><b>Address:</b></span> <span>{{ full_address }}</span></p>
+</div>
+
+<div class="summary">
+  <h3 style="margin-bottom:10px;">Order Summary</h3>
+
+  <p><span><b>Subtotal:</b></span> <span>₱{{ subtotal }}</span></p>
+
+<p>
+  <span style="display:flex; align-items:center; gap:5px;"><b>
+    Shipping Fee</b>
+
+        <span class="info-container">
+        <span class="info-icon">ℹ️</span>
+        <span class="tooltip-text">
+            Shipping fee depends on distance, courier rate, and item weight. 
+            Small/lightweight orders may cost ₱50, while larger items may require 
+            a higher delivery fee.
+        </span>
+        </span>
+    </span>
+
+    <span>₱{{ shipping_fee }}</span>
+    </p>
+
+
+  <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
+
+  <p><strong>Total:</strong> <strong>₱{{ total }}</strong></p>
+</div>
+
+
+<button id="placeOrderBtn" class="final-btn">Place Order (COD)</button>
+
+<!-- Success modal -->
+<div id="successModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:9999;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:420px; text-align:center;">
+    <h3>Order placed!</h3>
+    <p>Your order was placed successfully. Seller(s) have been notified. 🔔</p>
+    <button id="successOkBtn" style="background:#e53935;color:#fff;padding:10px 16px;border-radius:8px;border:none;">Okay</button>
+  </div>
+</div>
+
+<script>
+document.getElementById("placeOrderBtn").addEventListener("click", function(){
+  const btn = this; 
+  btn.disabled = true;
+
+  fetch("/finalize_payment", { 
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      credentials: "include"   // ⭐ FIX HERE
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.success) {
+        document.getElementById("successModal").style.display = "flex";
+
+        setTimeout(() => {
+          window.location.href = "/homepage";
+        }, 2500);
+
+      } else if (data.redirect) {
+        window.location.href = data.redirect;  // In case login is really needed
+      } else {
+        alert(data.message || "Could not place order. Try again.");
+        btn.disabled = false;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Something went wrong");
+      btn.disabled = false;
+    });
+});
+
+document.getElementById("successOkBtn").addEventListener("click", function(){
+  window.location.href = "/homepage";
+});
+</script>
+
+</body>
+</html>

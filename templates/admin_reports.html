@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_reports.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo" />
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li class="active"><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li><a href="{{ url_for('login_admin') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <h1>Reports Overview</h1>
+      <div class="profile">
+        <img src="static/images/profile_icon.png" alt="Admin Avatar" />
+        <p>Admin</p>
+      </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <section class="overview">
+      <div class="card">
+        <h3>Total Revenue</h3>
+        <p>₱{{ "%.2f"|format(admin_revenue) }}</p>
+      </div>
+      <div class="card">
+        <h3>Total Orders</h3>
+        <p>{{ total_orders }}</p>
+      </div>
+      <div class="card">
+        <h3>New Users</h3>
+        <p>{{ new_users }}</p>
+      </div>
+      <div class="card">
+        <h3>Active Drivers</h3>
+        <p>{{ active_drivers }}</p>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="report-filters">
+      <h2>Generate Report</h2>
+      <div class="filter-group">
+        <label>From:</label>
+        <input type="date" />
+        <label>To:</label>
+        <input type="date" />
+        <select>
+          <option>All Reports</option>
+          <option>Sales Report</option>
+          <option>Orders Report</option>
+          <option>Drivers Report</option>
+          <option>Sellers Report</option>
+        </select>
+        <button class="filter-btn">Generate</button>
+      </div>
+    </section>
+
+    <!-- Sales Chart Placeholder -->
+    <section class="chart-section">
+      <h2>Sales & Performance Summary</h2>
+        <canvas id="salesChart"></canvas>
+  
+
+      
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const salesData = JSON.parse('{{ chart_data | tojson }}');
+
+const labels = salesData.map(row => row.date);
+const data = salesData.map(row => row.total_sales);
+
+new Chart(document.getElementById('salesChart'), {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Daily Sales",
+            data: data,
+            borderWidth: 3
+        }]
+    }
+});
+</script>
+
+    </section>
+
+    <!-- Detailed Reports Table -->
+  <section class="reports-table">
+  <h2>Detailed Reports</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Item ID</th>
+        <th>Order ID</th>
+        <th>Product</th>
+        <th>Seller</th>
+        <th>Buyer</th>
+        <th>Quantity</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in detailed_reports %}
+      <tr>
+        <td>{{ row.item_id }}</td>
+        <td>{{ row.order_id }}</td>
+        <td>{{ row.product_name }}</td>
+        <td>{{ row.business_name }}</td>
+        <td>{{ row.buyer_first }} {{ row.buyer_last }}</td>
+        <td>{{ row.quantity }}</td>
+        <td>₱{{ "%.2f"|format(row.total_price) }}</td>
+        <td>{{ row.status }}</td>
+        <td>{{ row.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+  </main>
+</body>
+</html>

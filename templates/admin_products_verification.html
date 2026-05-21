@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products Verification - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_accounts.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <style>
+    .status.active { color: green; }
+    .status.pending { color: orange; }
+    .status.rejected { color: red; }
+    .status.unknown { color: gray; }
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: flex-start; /* align to top for scroll */
+    overflow-y: auto;        /* allow scrolling */
+    padding: 50px 0;         /* spacing top & bottom */
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 95%;            /* wider for big images */
+    max-width: 1000px;     /* allow more space for content */
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    max-height: 90vh;      /* limit height */
+    overflow-y: auto;      /* scroll if content too tall */
+}
+
+    .modal h2 { margin-bottom: 15px; }
+    .modal-section { margin-bottom: 15px; }
+    .modal-section h3 { margin-bottom: 8px; color: #ff4c29; }
+    .modal-section p { margin: 4px 0; }
+    .close-btn {
+        display:block;
+        width:100%;
+        padding: 12px;
+        background:#ff4c29;
+        color:#fff;
+        border:none;
+        border-radius: 8px;
+        cursor:pointer;
+        font-weight:600;
+    }
+    .close-btn:hover { background:#e04323; }
+.modal-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;               /* space between images */
+    justify-content: center;  /* center images horizontally */
+}
+
+.modal-images p {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* center images and captions inside <p> */
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.modal-images img {
+    width: 500px;   /* image size */
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    /* remove flex properties from here */
+}
+
+  .approve, .reject, .suspend {
+    padding: 10px 20px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+}
+
+.approve { background: #28a745; } /* green */
+.reject { background: #dc3545; }  /* red, same style as approve */
+.suspend { background: #ff9800; } /* orange */
+.approve:hover { background: #218838; }
+.reject:hover { background: #c82333; }
+.suspend:hover { background: #e68a00; }
+
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li ><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li class="active"><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li><a href="{{ url_for('login_admin') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header>
+      <h1>Products Verification</h1>
+    </header>
+
+    <!-- Tabs -->
+
+<!-- Add this section below your other sections -->
+<section id class="tab-content active">
+  <h2>Products Verification</h2>
+<section class="product-filters">
+  <input type="text" id="product-search" placeholder="Search by product name, seller, or ID..." style="padding:8px 12px; width:300px; margin-bottom:10px; margin-top:15px; border-radius:6px; border:1px solid #ccc;">
+</section>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Product Name</th>
+      <th>Seller</th>
+      <th>Main Image</th>
+      <th>Colors</th> <!-- new -->
+      <th>Status</th>
+      <th>Created</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for p in products %}
+    <tr>
+      <td>{{ p.product_id }}</td>
+      <td>{{ p.name }}</td>
+      <td>
+        {{ p.first_name }} {{ p.middle_name }} {{ p.last_name }} {{ p.suffix }}
+        <br>
+        <small><b>{{ p.business_name }}</b></small>
+      </td>
+
+      <td>
+        {% if p.main_image %}
+          <img src="{{ url_for('static', filename='uploads/sellers/' ~ p.main_image) }}"
+               style="width:90px; height:auto; border-radius:6px;">
+        {% else %}No Image{% endif %}
+      </td>
+
+        <td>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            {% set colors = p.colors.split(',') %}
+            {% set color_images = p.color_images %}
+            {% set color_price = p.color_price %}
+
+            {% for c in colors %}
+              {% set key = c.strip() %}
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <!-- Color Image -->
+                <img src="{{ url_for('static', filename='uploads/sellers/' ~ color_images[key]) }}"
+                    style="width:40px; height:40px; border-radius:4px;">
+                <!-- Color Name -->
+                <span style="min-width: 80px;">{{ key }}</span>
+                <!-- Color Price -->
+                <span>₱{{ color_price[key] }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </td>
+
+
+      <td>
+        {% if p.status == 'approved' %}
+          <span class="status active">Approved</span>
+        {% elif p.status == 'pending' %}
+          <span class="status pending">Pending</span>
+        {% elif p.status == 'rejected' %}
+          <span class="status rejected">Rejected</span>
+        {% else %}
+          <span class="status unknown">Unknown</span>
+        {% endif %}
+      </td>
+
+      <td>{{ p.created_at }}</td>
+
+      <td>
+          <button class="approve"
+                  data-url="{{ url_for('admin_approve_product', product_id=p.product_id) }}">
+              Approve
+          </button>
+
+          <button class="reject"
+                  data-url="{{ url_for('admin_reject_product', product_id=p.product_id) }}">
+              Reject
+          </button>
+
+                <button class="suspend" data-product='{{ p|tojson|safe }}'>View</button>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+</section>
+
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <h2 id="m_name"></h2>
+
+    <div class="modal-section">
+      <h3>Description</h3>
+      <p id="m_description"></p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Specifications</h3>
+      <p id="m_specs"></p>
+    </div>
+
+    <div class="modal-section">
+      <h3>Main Image</h3>
+      <img id="m_main_image" style="width:300px; border-radius:8px; border-color: black; border: 2px;">
+    </div>
+
+    <div class="modal-section">
+      <h3>Colors & Prices</h3>
+      <div id="m_colors"></div>
+    </div>
+
+    <button class="close-btn" onclick="closeProductModal()">Close</button>
+  </div>
+</div>
+
+
+</body>
+</html>
+<script>
+document.querySelectorAll(".suspend").forEach(btn => {
+    btn.addEventListener("click", function() {
+        const p = JSON.parse(this.dataset.product); // safer
+        openProductModal(p);
+    });
+});
+
+function openProductModal(p) {
+    document.getElementById("m_name").innerText = p.name;
+    document.getElementById("m_description").innerText = p.description;
+    document.getElementById("m_specs").innerText = p.specifications;
+
+    if (p.main_image) {
+        document.getElementById("m_main_image").src =
+            "/static/uploads/sellers/" + p.main_image;
+    }
+
+    let colorsDiv = document.getElementById("m_colors");
+    colorsDiv.innerHTML = "";
+    let colors = p.colors.split(',').map(c => c.trim());
+    let color_images = p.color_images;
+    let color_price = p.color_price;
+
+    colors.forEach(c => {
+        let key = c.trim();
+        if (!color_images[key] || !color_price[key]) return; // skip missing
+
+        let div = document.createElement('div');
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.marginBottom = "5px";
+
+        let img = document.createElement('img');
+        img.src = "/static/uploads/sellers/" + color_images[key];
+        img.style.width = "50px";
+        img.style.height = "50px";
+        img.style.borderRadius = "6px";
+        img.style.marginRight = "8px";
+
+        let span = document.createElement('span');
+        span.innerText = key + " - ₱" + color_price[key];
+
+        div.appendChild(img);
+        div.appendChild(span);
+        colorsDiv.appendChild(div);
+    });
+
+    document.getElementById("productModal").style.display = "flex";
+}
+
+function closeProductModal() {
+    document.getElementById("productModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    let modal = document.getElementById("productModal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
+<script>
+const searchInput = document.getElementById('product-search');
+const tableBody = document.querySelector('table tbody');
+
+// Fetch products from backend
+async function fetchProducts(search='') {
+    const res = await fetch(`/admin_products_verification_search?search=${encodeURIComponent(search)}`);
+    const products = await res.json();
+
+    // Clear table
+    tableBody.innerHTML = '';
+
+    products.forEach(p => {
+        let colorsHTML = '';
+        const colors = p.colors ? p.colors.split(',').map(c => c.trim()) : [];
+        colors.forEach(c => {
+            if(!p.color_images[c] || !p.color_price[c]) return;
+            colorsHTML += `
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                    <img src="/static/uploads/sellers/${p.color_images[c]}" style="width:40px;height:40px;border-radius:4px;">
+                    <span>${c} - ₱${p.color_price[c]}</span>
+                </div>
+            `;
+        });
+
+        tableBody.innerHTML += `
+            <tr>
+                <td>${p.product_id}</td>
+                <td>${p.name}</td>
+                <td>${p.first_name} ${p.middle_name || ''} ${p.last_name || ''} ${p.suffix || ''}<br><small><b>${p.business_name}</b></small></td>
+                <td>${p.main_image ? `<img src="/static/uploads/sellers/${p.main_image}" style="width:90px;height:auto;border-radius:6px;">` : 'No Image'}</td>
+                <td>${colorsHTML}</td>
+                <td>
+                    ${p.status == 'approved' ? '<span class="status active">Approved</span>' :
+                      p.status == 'pending' ? '<span class="status pending">Pending</span>' :
+                      p.status == 'rejected' ? '<span class="status rejected">Rejected</span>' :
+                      '<span class="status unknown">Unknown</span>'}
+                </td>
+                <td>${p.created_at}</td>
+                <td>
+                    <button class="approve" onclick="location.href='/admin_approve_product/${p.product_id}'">Approve</button>
+                    <button class="reject" onclick="location.href='/admin_reject_product/${p.product_id}'">Reject</button>
+                    <button class="suspend" data-product='${JSON.stringify(p)}'>View</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    // Reattach modal listeners
+    document.querySelectorAll(".suspend").forEach(btn => {
+        btn.addEventListener("click", function() {
+            const p = JSON.parse(this.dataset.product);
+            openProductModal(p);
+        });
+    });
+}
+
+// Debounce for typing
+function debounce(fn, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+searchInput.addEventListener('input', debounce((e) => {
+    fetchProducts(e.target.value);
+}, 300));
+
+// Initial fetch
+fetchProducts();
+
+</script>
+

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Messages | FitHub</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='seller_messages.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+          <h2>Seller Panel</h2>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li><a href="{{ url_for('seller_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('seller_products') }}">My Products</a></li>
+        <li><a href="{{ url_for('seller_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('seller_earnings') }}">Earnings</a></li>
+        <li class="active"><a href="{{ url_for('seller_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('seller_settings') }}">Settings</a></li>
+        <li class="logout"><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+
+      <header class="topbar">
+        <h1>Dashboard Overview</h1>
+        <div class="seller-profile">
+          <img src="{{ session.get('store_logo', url_for('static', filename='uploads/sellers/default-user.jpg')) }}" alt="Profile">
+          <span>Seller Account:  </span><span class="user-email">{{ session['first_name'] }}</span>
+        </div>
+      </header>
+
+      <!-- Messages Layout -->
+      <div class="messages-wrapper">
+
+        <!-- LEFT: Message List -->
+        <div class="message-list">
+          <div class="search-box">
+            <input type="text" placeholder="Search conversations...">
+          </div>
+
+          <div class="message-item">
+            <div class="name">John Reyes</div>
+            <div class="snippet">Hi, is the item still available?</div>
+          </div>
+
+          <div class="message-item">
+            <div class="name">Maria Santos</div>
+            <div class="snippet">Can I change my order size?</div>
+          </div>
+
+          <div class="message-item">
+            <div class="name">Karl Mendoza</div>
+            <div class="snippet">How long is delivery?</div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Chat View -->
+        <div class="message-view">
+          <div class="message-header">Chat with: John Reyes</div>
+
+          <div class="chat-box">
+            <div class="chat-msg from-buyer">Hi seller, is the item still available?</div>
+            <div class="chat-msg from-seller">Yes! We still have stock available.</div>
+            <div class="chat-msg from-buyer">How many days is the delivery?</div>
+          </div>
+
+          <div class="reply-box">
+            <input type="text" placeholder="Type your message...">
+            <button>Send</button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

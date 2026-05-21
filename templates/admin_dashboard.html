@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | FitHubExpress</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <style>
+.charts {
+    margin-top: 40px;
+}
+
+.charts h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Pie chart 1 part, Line chart 2 parts */
+    gap: 30px;
+    align-items: start;
+    justify-items: center;
+    width: 100%;
+}
+
+.chart-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    text-align: center;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 450px !important;
+}
+
+/* Make it responsive on smaller screens */
+@media (max-width: 900px) {
+    .charts-grid {
+        grid-template-columns: 1fr; /* stack vertically on small screens */
+    }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li class="active"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li><a href="{{ url_for('login_admin') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="page-title">Admin Dashboard</div>
+      <div class="profile">
+        <img src="static/images/profile_icon.png" alt="Admin">
+        <span>Welcome, Admin</span>
+      </div>
+    </header>
+
+    <!-- Dashboard Overview -->
+<section class="overview">
+  <div class="card">
+    <h3>Total Sellers</h3>
+    <p>{{ total_sellers }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Buyers</h3>
+    <p>{{ total_buyers }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Drivers</h3>
+    <p>{{ total_drivers }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Earnings</h3>
+    <p>₱{{ "{:,.2f}".format(admin_earnings) }}</p>
+  </div>
+</section>
+
+
+<section class="charts">
+  <h2>Dashboard Graphs</h2>
+
+  <div class="charts-grid">
+    <!-- Pie Chart -->
+    <div class="chart-container">
+      <h3>User Breakdown</h3>
+      <canvas id="userBreakdownChart"></canvas>
+    </div>
+
+    <!-- Line Chart (Wider) -->
+    <div class="chart-container">
+      <h3>Monthly Admin Earnings</h3>
+      <canvas id="earningsChart"></canvas>
+    </div>
+  </div>
+</section>
+
+    <!-- Recent Activities -->
+<section class="recent-activity">
+  <h2>Recent Activities</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>User</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in recent_orders %}
+        <tr>
+          <td>{{ r.created_at.strftime('%b %d, %Y') }}</td>
+          <td>{{ r.first_name }} {{ r.last_name }}</td>
+          <td>{{ r.role|capitalize }}</td>
+          <td>Ordered product: "{{ r.name }}"</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const dashboardData = {{ {
+    "totalSellers": total_sellers|default(0),
+    "totalBuyers": total_buyers|default(0),
+    "totalDrivers": total_drivers|default(0),
+    "earningsByMonth": earnings_by_month|default([0,0,0,0,0,0,0,0,0,0,0,0])
+} | tojson | safe }};
+
+// Usage
+const { totalSellers, totalBuyers, totalDrivers, earningsByMonth } = dashboardData;
+
+const ctxUsers = document.getElementById('userBreakdownChart').getContext('2d');
+new Chart(ctxUsers, {
+    type: 'pie',
+    data: {
+        labels: ['Sellers', 'Buyers', 'Drivers'],
+        datasets: [{
+            data: [totalSellers, totalBuyers, totalDrivers],
+            backgroundColor: ['#28a745','#007bff','#ffc107']
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+const ctxEarnings = document.getElementById('earningsChart').getContext('2d');
+new Chart(ctxEarnings, {
+    type: 'line',
+    data: {
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets: [{
+            label: 'Admin Earnings (₱)',
+            data: earningsByMonth,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40,167,69,0.2)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: { responsive: true }
+});
+</script>
+
+
+
+
+  </main>
+
+  <!-- Footer -->
+</body>
+</html>

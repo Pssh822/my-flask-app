@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Addresses/Change Password</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='my_account.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+        .header-actions a img {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-right: 5px;
+        font-weight: 100;
+      }
+
+      .logout-btn {
+        color: rgb(255, 255, 255);
+        margin-left: 10px;
+        text-decoration: none;
+
+      }
+      .logout-btn:hover {
+        text-decoration: underline;
+      }
+      .user-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-photo {
+        width: 25px !important;
+        height: 25px !important;
+        border-radius: 50%;
+        object-fit: cover;
+        background: none !important;
+        filter: none !important;
+        opacity: 1 !important;
+        display: inline-block;
+      }
+
+      .user-btn {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;                  /* Adds space between elements */
+        cursor: pointer;
+      }
+
+      .user-email {
+        font-size: 12px;
+        color: white;
+      }
+
+      .user-btn:hover .user-email,
+      .user-btn:hover .arrow {
+        color: #ffcc00; /* Optional highlight color */
+      }
+
+
+      .user-btn img {
+        width: 200px;
+        height: 200px;
+        margin-right: -1px;
+        margin-left: 5px;
+      }
+
+      .user-btn .arrow {
+        margin-left: 5px;
+        font-size: 8px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        z-index: 10;
+        right: 0;
+      }
+
+      .dropdown-content a {
+        display: block;
+        padding: 10px 14px;
+        color: #000000;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #9d9d9d;
+        color: #ffffff;
+      }
+
+      .user-dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .profile-photo {
+        width: clamp(25px, 3vw, 50px);  /* Minimum 25px, scales up to 50px */
+        height: clamp(25px, 3vw, 50px);
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+    /* Keep your existing header CSS */
+    .header-actions a img {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+      font-weight: 100;
+    }
+    .logout-btn { color: white; margin-left: 10px; text-decoration: none; }
+    .logout-btn:hover { text-decoration: underline; }
+
+    .user-dropdown { position: relative; display: inline-block; }
+    .profile-photo {
+      width: clamp(25px, 3vw, 50px);
+      height: clamp(25px, 3vw, 50px);
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .user-btn {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .user-email { font-size: 12px; color: white; }
+    .user-btn:hover .user-email, .user-btn:hover .arrow { color: #ffcc00; }
+    .user-btn .arrow { margin-left: 5px; font-size: 8px; }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      z-index: 10;
+      right: 0;
+    }
+    .dropdown-content a {
+      display: block;
+      padding: 10px 14px;
+      color: #000;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .dropdown-content a:hover {
+      background-color: #9d9d9d;
+      color: #fff;
+    }
+    .user-dropdown:hover .dropdown-content { display: block; }
+/* --- MODAL BACKDROP --- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* --- MODAL BOX --- */
+.modal-content {
+  background: #ffffff;
+  width: 95%;
+  max-width: 520px;
+  margin: 60px auto;
+  padding: 30px 25px;
+  border-radius: 14px;
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
+  animation: fadeIn 0.25s ease-out;
+  font-family: "Poppins", sans-serif;
+}
+
+/* --- CLOSE BUTTON --- */
+.close {
+  float: right;
+  font-size: 26px;
+  cursor: pointer;
+  color: #666;
+  transition: 0.2s;
+}
+
+.close:hover {
+  color: #000;
+}
+
+/* --- MODAL TITLE --- */
+.modal-content h2 {
+  margin-top: 0;
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+/* --- LABELS --- */
+.modal-content label {
+  font-weight: 500;
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+
+/* --- INPUT FIELDS --- */
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 8px;
+  border: 1px solid #c7c7c7;
+  font-size: 14px;
+  font-family: inherit;
+  background: #fafafa;
+  transition: 0.2s;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: #ff7b00;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255,123,0,0.2);
+}
+
+/* --- SAVE BUTTON --- */
+.save-btn {
+  width: 100%;
+  background: #ff7b00;
+  border: none;
+  padding: 13px;
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 18px;
+  font-size: 15px;
+  transition: 0.25s;
+}
+
+.save-btn:hover {
+  background: #ff8f1a;
+  transform: translateY(-1px);
+}
+
+/* --- SMOOTH APPEAR ANIMATION --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.password-error {
+    color: red;
+    font-size: 14px;
+    text-align: center;
+    min-height: 18px;   /* Reserve space even when no error */
+    margin-bottom: 10px;
+}
+.password-form input {
+    width: 100%;          /* Take up full width of parent container */
+    max-width: 500px;     /* Optional: limit max width */
+    box-sizing: border-box; /* Include padding/border in width */
+    padding: 12px 15px;   /* Optional: more padding */
+    border-radius: 8px;
+    border: 1px solid #c7c7c7;
+    font-size: 14px;
+}
+
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <a href="{{ url_for('homepage') }}" class="logo">FitHub</a>
+
+<div class="search-bar">
+  <form action="{{ url_for('category') }}" method="get">
+    <input type="text" name="q" placeholder="Search for products..." required>
+    <button type="submit">
+      <img src="{{ url_for('static', filename='magnifier.png') }}" alt="Search">
+    </button>
+  </form>
+</div>
+    <!-- Right actions -->
+    <div class="header-actions">
+      <a href="{{ url_for('signup') }}" target="_blank" rel="noopener noreferrer">
+        <img src="/static/store.png" alt="Sell"> Start Selling
+      </a>
+      <a href="{{ url_for('add_to_cart') }}">
+      <span class="cart-badge {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count }}</span>
+          <img src="/static/shopping-cart.png" alt="Cart"> Cart
+      </a>
+        {% if session.get('loggedin') %}
+        <div class="user-dropdown">
+          <button class="user-btn">
+          <img 
+            src="{{ url_for('static', filename='uploads/sellers/' + session['photo']) }}" 
+            alt="Profile Photo" 
+            class="profile-photo"
+          >
+          <span class="user-email">{{ session['email'] }}</span>
+          <span class="arrow">▼</span>
+        </button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('purchase') }}">My Purchase</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+        {% else %}
+          <a href="/login"><img src="/static/enter (1).png" alt="User"> Login / Sign Up</a>
+        {% endif %}
+
+    </div>
+  </header>
+<div class="categories-bar">  
+  <ul>
+    <button class="scroll-left">‹</button>
+   <li class="dropdown"><a href="#" data-target="camping&hikinggear">Camping & Hiking Gear</a></li>
+    <li class="dropdown"><a href="#" data-target="cycling&bikes">Cycling & Bikes</a></li>
+    <li class="dropdown"><a href="#" data-target="fitnessequipment">Fitness Equipment</a></li>
+    <li class="dropdown"><a href="#" data-target="sportsapparel">Sports Apparel</a></li>
+    <li class="dropdown"><a href="#" data-target="teamsportsequipment">Team Sports Equipment</a></li>
+    <li class="dropdown"><a href="#" data-target="watersports">Water Sports</a></li>
+    <button class="scroll-right">›</button>
+  </ul>
+
+  <!-- Shared Mega Dropdown -->
+  <div class="mega-dropdown">
+    <!-- Sidebar (column 1) -->
+<div class="mega-sidebar">
+    {% for main, categories in category_tree.items() %}
+        {% for category, cat_data in categories.items() %}
+            <a href="#" class="mega-item"
+               data-target="{{ category|lower|replace(' ', '') }}">
+               {{ category }}
+            </a>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+
+    <!-- Dynamic Content (column 2) -->
+ <div class="mega-content">
+  {% for main, categories in category_tree.items() %}
+    {% for category, cat_data in categories.items() %}
+        <div class="mega-panel" id="{{ category|lower|replace(' ', '') }}">
+            <div class="col-2">
+                <!-- "ALL" goes to main category -->
+              <div class="circle-item">
+                  <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}">
+                      <img src="{{ url_for('static', filename='images/plus.jpg') }}">
+                      <p>ALL</p>
+                  </a>
+              </div>
+                {% for sub in cat_data.subcats %}
+                <div class="circle-item">
+                    <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}&sub={{ sub.name|urlencode }}">
+                        <img src="{{ url_for('static', filename='images/' + sub.image) }}" alt="{{ sub.name }}">
+                        <p>{{ sub.name }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+  </div>
+</div>
+
+  <!-- Account Page Container -->
+  <div class="account-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul class="menu">
+        <li class="menu-item open">
+          <a href="#" class="menu-link active">Account</a>
+          <ul class="submenu show">
+            <li><a href="{{ url_for('my_account') }}">Profile</a></li>
+            <li><a href="{{ url_for('bank') }}">Banks & Cards</a></li>
+            <li><a href="{{ url_for('addresses') }}" class="active">Addresses / Change Password</a></li>
+            <li><a href="{{ url_for('privacy') }}">Privacy Settings</a></li>
+            <li><a href="{{ url_for('notification') }}">Notification Settings</a></li>
+          </ul>
+        </li>
+
+        <li class="menu-item">
+          <a href="{{ url_for('purchase') }}" class="menu-link">My Purchase</a>
+        </li>
+
+        <li class="menu-item">
+          <a href="#" class="menu-link">Notification</a>
+          <ul class="submenu">
+            <li><a href="{{ url_for('order_update') }}">Order Updates</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+<div class="account-content">
+  <!-- Address Section -->
+  <div class="address-section">
+    <h2>My Addresses</h2>
+    <div class="address-list">
+
+      {% if user_address %}
+        <div class="address-card">
+          <p><strong>Default Address</strong></p>
+          <p>
+            {{ user_address.street }},
+            {{ user_address.barangay }},
+            {{ user_address.city }},
+            {{ user_address.province }},
+            {{ user_address.region }},
+            {{ user_address.postal }}
+          </p>
+
+          <p>Phone: {{ user_address.mobile }}</p>
+
+         <button class="edit-btn" onclick="openEditModal()">Edit Address</button>
+        </div>
+      {% else %}
+        <p>No address found. Please add an address.</p>
+      {% endif %}
+
+    </div>
+
+  </div>
+
+  <!-- Divider Line -->
+  <hr class="section-divider">
+
+  <!-- Change Password Section -->
+  <div class="password-section">
+    <h2>Change Password</h2>
+      <form method="POST" action="/update_password" class="password-form">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" name="current_password" placeholder="Enter current password" required>
+
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" name="new_password" placeholder="Enter new password" required>
+
+          <label for="confirm-password">Confirm New Password</label>
+          <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm new password" required>
+
+          {% if error %}
+          <p class="password-error">{{ error }}</p>
+          {% endif %}
+
+          <button type="submit" class="save-password-btn">Save Changes</button>
+      </form>
+  </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditModal()">&times;</span>
+    <h2>Edit Address</h2>
+
+    <form id="editAddressForm" method="POST" action="/update_address">
+
+      <label>Mobile Number</label>
+      <input type="text" name="mobile" maxlength="11" inputmode="numeric"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+             value="{{ user_address.mobile }}" required>
+
+      <!-- REGION -->
+      <label>Region</label>
+      <select id="edit_region" name="region" required>
+        <option value="" disabled selected>Choose Region</option>
+        {% for reg in ["Metro Manila","Mindanao","North Luzon","South Luzon","Visayas"] %}
+        <option value="{{ reg }}" {% if user_address.region == reg %}selected{% endif %}>
+          {{ reg }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <!-- PROVINCE -->
+      <label>Province</label>
+      <select id="edit_province" name="province" required disabled>
+        <option value="" disabled selected>Choose Province</option>
+      </select>
+
+      <!-- CITY -->
+      <label>City / Municipality</label>
+      <select id="edit_city" name="city" required disabled>
+        <option value="" disabled selected>Choose City</option>
+      </select>
+
+      <!-- BARANGAY -->
+      <label>Barangay</label>
+      <select id="edit_barangay" name="barangay" required disabled>
+        <option value="" disabled selected>Choose Barangay</option>
+      </select>
+
+      <!-- POSTAL -->
+      <label>Postal Code</label>
+      <input type="text" name="postal" maxlength="4"
+             value="{{ user_address.postal }}"
+             inputmode="numeric" pattern="\d{4}"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'');"
+             required>
+
+      <!-- STREET -->
+      <label>Street</label>
+      <input type="text" name="street" value="{{ user_address.street }}" required>
+
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+
+  </div>
+</div>
+
+  <footer>
+    <p>&copy; 2025 FitHub. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const menuLinks = document.querySelectorAll(".menu-link");
+
+  menuLinks.forEach(link => {
+    link.addEventListener("click", function(e) {
+      const parent = this.closest(".menu-item");
+      const submenu = parent.querySelector(".submenu");
+
+      // Only prevent navigation if there is a submenu
+      if (submenu) {
+        e.preventDefault();
+        submenu.classList.toggle("show");
+        parent.classList.toggle("open");
+      }
+    });
+  });
+});
+</script>
+
+<script>
+(function() {
+  const body = document.documentElement; // to set CSS vars
+  const headerEl = document.querySelector('header');
+  const catEl = document.querySelector('.categories-bar');
+  const wrapper = document.body; // we add class on body to collapse/restore
+  let lastScrollTop = 0;
+  let ticking = false;
+
+  if (!headerEl || !catEl) return;
+
+  // set initial CSS vars and body spacing
+  function updateHeights() {
+    const h = headerEl.getBoundingClientRect().height || 64;
+    const c = catEl.getBoundingClientRect().height || 56;
+    body.style.setProperty('--header-height', `${h}px`);
+    body.style.setProperty('--categories-height', `${c}px`);
+    // add padding to body content to avoid overlap
+    // create or apply class on body (so site content gets spacing)
+    document.body.classList.add('site-top-spacing');
+  }
+
+  // Run once and on resize (header/cat may change size)
+  updateHeights();
+  window.addEventListener('resize', () => {
+    updateHeights();
+  });
+
+  // scroll handler — throttle with requestAnimationFrame
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // small threshold to avoid toggle on micro-scrolls
+        const delta = scrollTop - lastScrollTop;
+
+        if (Math.abs(delta) > 5) {
+          if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // scrolling down -> collapse
+            document.body.classList.add('header-collapsed');
+          } else {
+            // scrolling up -> show
+            document.body.classList.remove('header-collapsed');
+          }
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // If you want categories to stay visible while header hides, use:
+  // document.body.classList.add('header-only-mode'); and adjust CSS accordingly (I can show if needed)
+})();
+</script>
+
+
+
+<script>
+  document.querySelectorAll(".mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
+  });
+});
+
+// Show mega dropdown when hovering any top nav
+document.querySelectorAll(".categories-bar ul li").forEach(item => {
+  item.addEventListener("mouseenter", () => {
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+</script>
+<script>
+document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseover", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.add("highlight");
+      }
+    });
+  });
+
+  link.addEventListener("mouseout", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.remove("highlight");
+      }
+    });
+  });
+});
+
+</script>
+<script>
+  document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    if (!target) return; // skip if no target
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    const panel = document.getElementById(target);
+    if (panel) panel.classList.add("active");
+    
+    // show dropdown when hovering top bar
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+// hide when mouse leaves whole dropdown + bar
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+document.querySelector(".mega-dropdown").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+</script>
+<script>
+const catBar = document.querySelector(".categories-bar ul");
+const leftBtn = document.querySelector(".scroll-left");
+const rightBtn = document.querySelector(".scroll-right");
+
+function updateArrows() {
+  const scrollLeft = catBar.scrollLeft;
+  const maxScroll = catBar.scrollWidth - catBar.clientWidth;
+
+  // Show left arrow only if content scrolled right
+  leftBtn.style.display = scrollLeft > 0 ? "block" : "none";
+
+  // Show right arrow only if content is overflowing
+  rightBtn.style.display = scrollLeft < maxScroll ? "block" : "none";
+}
+
+// Scroll behavior
+leftBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: -150, behavior: "smooth" });
+});
+rightBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: 150, behavior: "smooth" });
+});
+
+// Update arrows on load, resize, and scroll
+window.addEventListener("load", updateArrows);
+window.addEventListener("resize", updateArrows);
+catBar.addEventListener("scroll", updateArrows);
+
+</script>
+<script>
+// OPEN / CLOSE
+function openEditModal() {
+    document.getElementById("editModal").style.display = "block";
+}
+
+function closeEditModal() {
+    document.getElementById("editModal").style.display = "none";
+}
+
+
+const data = {
+  "South Luzon": {
+    "Laguna": {
+      "Biñan": ["San Antonio", "San Francisco", "Sto. Tomas"],
+      "Calamba": ["Bañadero", "Batino", "Lawa"],
+      "Santa Cruz": ["Alipit", "Bagumbayan", "Barangay Poblacion I", "Barangay Poblacion II", "Barangay Poblacion III", "Barangay Poblacion IV", "Barangay Poblacion V"]
+    },
+    "Batangas": {
+      "Batangas City": ["Pallocan", "Sta. Rita", "Alangilan"],
+      "Lipa": ["Sabang", "Sico", "Tambo"]
+    },
+    "Albay": {
+      "Legazpi": ["Bogtong", "Bigaa", "Rawis"],
+      "Tabaco": ["Basud", "Panal", "Quinale"]
+    }
+  },
+  "Metro Manila": {
+    "Metro Manila": {
+      "Binondo": ["Barangay 287", "Barangay 288","Barangay 289", "Barangay 290", "Barangay 291", "Barangay 292","Barangay 293", "Barangay 294","Barangay 295", "Barangay 296"],
+      "Caloocan City": ["Barangay 1", "Barangay 100", "Barangay 101", "Barangay 102","Barangay 103", "Barangay 104", "Barangay 105", "Barangay 106", "Barangay 107", "Barangay 108", "Barangay 109", "Barangay 11","Barangay 110", "Barangay 111", "Barangay 112", "Barangay 113"]
+    }
+  }
+};
+// ELEMENTS
+const edit_region = document.getElementById("edit_region");
+const edit_province = document.getElementById("edit_province");
+const edit_city = document.getElementById("edit_city");
+const edit_barangay = document.getElementById("edit_barangay");
+
+function resetSelect(select, placeholder) {
+    select.innerHTML = `<option disabled selected>${placeholder}</option>`;
+}
+
+// Region -> Province
+edit_region.addEventListener("change", () => {
+    const reg = edit_region.value;
+    resetSelect(edit_province, "Choose Province");
+    resetSelect(edit_city, "Choose City");
+    resetSelect(edit_barangay, "Choose Barangay");
+    edit_province.disabled = false;
+
+    if (data[reg]) {
+        Object.keys(data[reg]).forEach(p => edit_province.add(new Option(p, p)));
+    }
+});
+
+// Province -> City
+edit_province.addEventListener("change", () => {
+    const reg = edit_region.value;
+    const prov = edit_province.value;
+    resetSelect(edit_city, "Choose City");
+    resetSelect(edit_barangay, "Choose Barangay");
+    edit_city.disabled = true;
+    edit_barangay.disabled = true;
+
+    if (data[reg][prov]) {
+        edit_city.disabled = false;
+        Object.keys(data[reg][prov]).forEach(c => edit_city.add(new Option(c, c)));
+    }
+});
+
+// City -> Barangay
+edit_city.addEventListener("change", () => {
+    const reg = edit_region.value;
+    const prov = edit_province.value;
+    const c = edit_city.value;
+    resetSelect(edit_barangay, "Choose Barangay");
+    edit_barangay.disabled = false;
+
+    if (data[reg][prov][c]) {
+        data[reg][prov][c].forEach(b => edit_barangay.add(new Option(b, b)));
+    }
+});
+
+// Prefill existing address
+window.onload = function () {
+    let reg = "{{ user_address.region }}";
+    let prov = "{{ user_address.province }}";
+    let c = "{{ user_address.city }}";
+    let brgy = "{{ user_address.barangay }}";
+
+    if (reg) {
+        edit_region.value = reg;
+        edit_region.dispatchEvent(new Event('change'));
+
+        setTimeout(() => {
+            edit_province.value = prov;
+            edit_province.dispatchEvent(new Event('change'));
+
+            setTimeout(() => {
+                edit_city.value = c;
+                edit_city.dispatchEvent(new Event('change'));
+
+                setTimeout(() => {
+                    edit_barangay.value = brgy;
+                }, 200);
+            }, 200);
+        }, 200);
+    }
+};
+
+</script>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orders - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_orders.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+<style>
+.modal {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* ensure above everything */
+}
+
+.modal.hidden { 
+    display: none; 
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    position: relative;
+    animation: fadeIn 0.25s ease-out;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.modal-section {
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 150px auto;
+    row-gap: 6px;
+    margin-bottom: 15px;
+}
+
+.detail-grid span.label {
+    font-weight: bold;
+    color: #444;
+}
+
+.item-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #fafafa;
+}
+
+.item-card h5 {
+    margin-top: 0;
+    font-size: 16px;
+}
+
+.section-divider {
+    border-top: 1px solid #ccc;
+    margin: 25px 0;
+}
+</style>
+
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo" />
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li class="active"><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li><a href="{{ url_for('login_admin') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="topbar">
+      <h1>Orders Management</h1>
+      <div class="profile">
+        <img src="static/images/profile_icon.png" alt="Admin Avatar" />
+        <p>Admin</p>
+      </div>
+    </div>
+
+    <!-- Order Overview -->
+<section class="overview">
+  <div class="card">
+    <h3>Total Orders</h3>
+    <p>{{ total_orders }}</p>
+  </div>
+  <div class="card">
+    <h3>Pending Orders</h3>
+    <p>{{ pending_orders }}</p>
+  </div>
+  <div class="card">
+    <h3>Shipped Orders</h3>
+    <p>{{ shipped_orders }}</p>
+  </div>
+  <div class="card">
+    <h3>Cancelled</h3>
+    <p>{{ cancelled_orders }}</p>
+  </div>
+</section>
+
+
+    <!-- Order Filters -->
+<section class="order-filters">
+  <form method="get" class="filter-group">
+    <input type="text" name="search" placeholder="Search order ID, buyer name..." value="{{ search_query }}">
+    <select name="status">
+      <option {% if status_filter == "All Status" %}selected{% endif %}>All Status</option>
+      <option {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
+      <option {% if status_filter == "Processing" %}selected{% endif %}>Processing</option>
+      <option {% if status_filter == "Shipped" %}selected{% endif %}>Shipped</option>
+      <option {% if status_filter == "Delivered" %}selected{% endif %}>Delivered</option>
+      <option {% if status_filter == "Cancelled" %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" class="filter-btn">Search</button>
+  </form>
+</section>
+
+
+    <!-- Orders Table -->
+    <section class="recent-orders">
+      <h2>Recent Orders</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Buyer Name</th>
+            <th>Seller</th>
+            <th>Driver</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Date Ordered</th>
+            <th>Payout Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+<tbody>
+    {% for o in orders %}
+    <tr>
+        <td>#{{ o.order_id }}</td>
+        <td>{{ o.buyer_name }}</td>
+        <td>
+            {% for item in order_items if item.order_id == o.order_id %}
+                {{ item.seller_name }}<br>
+            {% endfor %}
+        </td>
+        <td>{{ o.rider_name if o.rider_name else "-" }}</td>
+        <td>₱{{ o.total }}</td>
+        <td><span class="status {{ o.order_status|lower }}">{{ o.order_status }}</span></td>
+        <td>{{ o.created_at }}</td>
+            <td>
+                {% set order_items_for_o = order_items | selectattr("order_id","equalto",o.order_id) | list %}
+                {% set total_count = order_items_for_o | length %}
+                {% set delivered_count = order_items_for_o | selectattr("status","equalto","Delivered") | list | length %}
+                {% set cancelled_count = order_items_for_o | selectattr("status","equalto","Cancelled") | list | length %}
+                {% set payouts_for_o = earnings | selectattr("order_id","equalto",o.order_id) | list %}
+
+                {% if cancelled_count == total_count %}
+                    <span style="color:red; font-weight:bold;">Cancelled</span>
+                {% elif delivered_count == total_count %}
+                    {% if payouts_for_o %}
+                        {% for p in payouts_for_o %}
+                            {% if p.payout_status == "paid" %}
+                                <span style="color:green; font-weight:bold;">Paid</span>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('admin_pay_seller', earning_id=p.earning_id) }}">
+                                    <button type="submit" style="padding:5px 10px; border-radius:5px; color:#fff; font-size:13px; background-color:rgb(222,0,0); cursor:pointer;">Pay Seller</button>
+                                </form>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span style="color:orange;">Pending</span>
+                    {% endif %}
+                {% else %}
+                    Pending
+                {% endif %}
+            </td>
+
+
+        </td>
+
+
+        <td>
+            <button class="view-btn" data-order="{{ o.order_id }}">View</button>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+      </table>
+    </section>
+  </main>
+<div id="orderModal" class="modal hidden">
+  <div class="modal-content">
+      <span class="close">&times;</span>
+
+      <h2>Order Details</h2>
+
+      <div id="modal-body">
+        <!-- Filled dynamically -->
+      </div>
+  </div>
+</div>
+</body>
+</html>
+<script>
+let orders = JSON.parse('{{ orders|tojson|safe }}');
+let items = JSON.parse('{{ order_items|tojson|safe }}');
+let shipping = JSON.parse('{{ shipping|tojson|safe }}');
+let earnings = JSON.parse('{{ earnings|tojson|safe }}');
+
+document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+
+        let orderId = this.dataset.order;
+        let order = orders.find(o => o.order_id == orderId);
+        let orderItems = items.filter(i => i.order_id == orderId);
+        let ship = shipping.find(s => s.order_id == orderId);
+        let payout = earnings.find(p => p.order_id == orderId);
+
+ let body = `
+    <div class="modal-section">
+        <div class="modal-title">Order Summary</div>
+        <div class="detail-grid">
+            <span class="label">Order ID:</span><span>#${orderId}</span>
+            <span class="label">Buyer:</span><span>${order.buyer_name}</span>
+            <span class="label">Status:</span><span>${order.order_status}</span>
+            <span class="label">Payment:</span><span>${order.payment_method} (${order.payment_status})</span>
+            <span class="label">Date:</span><span>${order.created_at}</span>
+            <span class="label">Rider:</span><span>${order.rider_name ?? '-'}</span>
+            <span class="label">Subtotal:</span><span>₱${order.subtotal}</span>
+            <span class="label">Shipping Fee:</span><span>₱${order.shipping_fee}</span>
+            <span class="label">Total:</span><span><b>₱${order.total}</b></span>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="modal-section">
+        <div class="modal-title">Items</div>
+        ${orderItems.map(i => `
+            <div class="item-card">
+                <h5 style="margin-bottom:10px;">${i.product_name}</h5>
+                <div class="detail-grid">
+                    <span class="label">Seller:</span><span>${i.seller_name}</span>
+                    <span class="label">Quantity:</span><span>${i.quantity}</span>
+                    <span class="label">Total Price:</span><span>₱${i.total_price}</span>
+                    <span class="label">Status:</span><span>${i.status}</span>
+                    ${i.cancel_reason ? `<span class="label">Cancel Reason:</span><span>${i.cancel_reason}</span>` : ""}
+                    <span class="label">Delivered At:</span><span>${i.received_at ?? '-'}</span>
+                </div>
+            </div>
+        `).join("")}
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="modal-section">
+        <div class="modal-title">Shipping Information</div>
+        <div class="detail-grid">
+            <span class="label">Name:</span><span>${ship.full_name}</span>
+            <span class="label">Mobile:</span><span>${ship.mobile}</span>
+            <span class="label">Address:</span>
+            <span>${ship.street}, ${ship.barangay}, ${ship.city}, ${ship.province}</span>
+            <span class="label">Region:</span><span>${ship.region}</span>
+            <span class="label">Postal:</span><span>${ship.postal}</span>
+        </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="modal-section">
+        <div class="modal-title">Payout</div>
+        ${payout ? `
+            <div class="detail-grid">
+                <span class="label">Amount:</span><span>₱${payout.amount}</span>
+                <span class="label">Status:</span><span>${payout.payout_status}</span>
+                <span class="label">Created:</span><span>${payout.created_at}</span>
+                <span class="label">Paid At:</span><span>${payout.paid_at ?? '-'}</span>
+            </div>
+        ` : `<p>No payout record.</p>`}
+    </div>
+`;
+
+
+        document.getElementById("modal-body").innerHTML = body;
+
+        document.getElementById("orderModal").classList.remove("hidden");
+    });
+});
+
+// Close Modal
+document.querySelector(".close").onclick = function () {
+    document.getElementById("orderModal").classList.add("hidden");
+};
+</script>

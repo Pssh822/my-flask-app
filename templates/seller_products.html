@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Products | Seller Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='seller_products.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Modal Styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+  max-width: 600px;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.modal-content button.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.modal-content button.submit-btn:hover {
+  background-color: #45a049;
+}
+
+/* Close button */
+.modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  background: #f9f9f9;
+}
+
+select:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 4px rgba(76,175,80,0.5);
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="dashboard">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+          <h2>Seller Panel</h2>
+        </div>
+      </div>
+      <ul class="sidebar-menu">
+        <li><a href="{{ url_for('seller_dashboard') }}">Dashboard</a></li>
+        <li class="active"><a href="{{ url_for('seller_products') }}">My Products</a></li>
+        <li><a href="{{ url_for('seller_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('seller_earnings') }}">Earnings</a></li>
+        <li><a href="{{ url_for('seller_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('seller_settings') }}">Settings</a></li>
+        <li class="logout"><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <h1>My Products</h1>
+        <a href="{{ url_for('insert_product') }}" class="add-btn" style="margin-right: 10px;">+ Add New Product</a>
+              <div style="text-align: center; margin: 20px 0;">
+          <form method="GET" action="{{ url_for('seller_products') }}">
+          <input type="text" id="searchInput" placeholder="Search products..." 
+                style="padding: 8px 12px; width: 300px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; margin-right: 190px;">
+
+          </form>
+      </div>
+        <div class="seller-profile">
+          <img src="{{ session.get('store_logo', url_for('static', filename='uploads/sellers/default-user.jpg')) }}" alt="Profile">
+          <span>Seller Account: </span><span class="user-email">{{ session['first_name'] }}</span>
+        </div>
+      </header>
+
+      <!-- Product List Section -->
+      <section class="product-list">
+        <h3>Your Products</h3>
+      <!-- Search Bar -->
+
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Stock</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Verification</th>
+              <th style="width: 160px;">Actions</th>
+            </tr>
+          </thead>
+
+        <tbody>
+        {% for product in products %}
+        <tr>
+            <td><img src="{{ url_for('get_product_image', filename=product.main_image) }}" class="product-img"></td>
+            <td>{{ product.name }}</td>
+
+           <td>{{ product.main_category }} → {{ product.category_name }} → {{ product.sub_category }}</td>
+            <td>
+                <span style="color: red;">Total: <span style="color: red;">{{ product.total_stock }}</span></span>
+                {% if product.color_stock %}
+                    <ul style="margin:0; padding-left:15px;">
+                        {% for color, qty in product.color_stock.items() %}
+                            <li>{{ color }}: {{ qty }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </td>
+
+            <td>            {% if product.color_price %}
+                <ul style="margin:0; padding-left:15px;">
+                    {% for color, price in product.color_price.items() %}
+                        <li>{{ color }}: ₱{{ "%.2f"|format(price|float) }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}</td>
+
+            <td>
+                {% if product.total_stock > 0 %}
+                    <span class="status delivered">In Stock</span>
+                {% else %}
+                    <span class="status cancelled">Out of Stock</span>
+                {% endif %}
+            </td>
+            <td>{{ product.status }}</td>
+            <td>
+              <button style="margin-bottom: 5px;" class="edit-btn" onclick="openEditModal('{{ product.product_id }}')">Edit</button>
+               <button style="margin-bottom: 5px;" class="view-btn" onclick="openViewModal('{{ product.product_id }}')">View</button>
+                <a href="{{ url_for('delete_product', product_id=product.product_id) }}" 
+                  class="delete-btn" 
+                  onclick="return confirmDelete(event)">Delete</a>
+              </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+
+        </table>
+      </section>
+
+    </main>
+  </div>
+<div id="editProductModal" class="modal">
+  <div class="modal-content">
+      <h2>Edit Product</h2>
+
+      <form id="editProductForm" method="POST" enctype="multipart/form-data">
+          <input type="hidden" id="edit_category_id" name="category_id">
+          <input type="hidden" id="edit_product_id" name="product_id">
+
+          <label>Product Name</label>
+          <input type="text" id="edit_name" name="name" required>
+
+          <label>Description</label>
+          <textarea id="edit_description" name="description" required></textarea>
+
+          <label>Main Category</label>
+          <select id="edit_main_category" name="main_category"></select>
+
+          <label>Category Name</label>
+          <select id="edit_category_name" name="category_name" ></select>
+
+          <label>Sub Category</label>
+          <select id="edit_sub_category" name="sub_category"></select>
+
+          <label>Specifications</label>
+          <textarea id="edit_specifications" name="specifications"></textarea>
+
+          <label for = "main_imageEdit">Main Image (Upload to replace)</label>
+          <input type="file" name="main_imageEdit" id="main_imageEdit">
+          <div id="mainImagePreviewEdit"></div>
+
+          <label for="gallery_imagesEdit">Gallery Images (Upload to replace)</label>
+          <input type="file" name="gallery_imagesEdit[]" id="gallery_imagesEdit" multiple >
+          <div id="galleryPreviewEdit" style="display:flex; flex-wrap:wrap;"></div>
+
+          <label for="product_videoEdit">Product Video (Upload to replace)</label>
+          <input type="file" name="video" id="product_videoEdit" accept="video/*">
+          <div id="videoPreviewEdit"></div>
+
+          <button type="submit" class="submit-btn">Save Changes</button>
+      </form>
+  </div>
+</div>
+
+
+<!-- Add Product Modal -->
+<div id="addProductModal" class="modal">
+  <div class="modal-content">
+    <h2>Add New Product</h2>
+    <form action="{{ url_for('insert_product') }}" method="POST" enctype="multipart/form-data">
+
+      <label for="product_name">Product Name</label>
+      <input type="text" name="product_name" id="product_name" required>
+
+      <label for="description">Description</label>
+      <textarea name="description" id="description" required></textarea>
+
+      <label for="main_category">Main Category</label>
+      <select id="main_category" name="main_category" required>
+          <option value="" disabled selected>Select Main Category</option>
+          {% for mc in main_categories %}
+              <option value="{{ mc }}">{{ mc }}</option>
+          {% endfor %}
+      </select>
+
+      <label for="category_name">Category Name</label>
+      <select id="category_name" name="category_name" required disabled>
+          <option value="" disabled selected>Select Category Name</option>
+      </select>
+
+      <label for="sub_category">Sub Category</label>
+      <select id="sub_category" name="sub_category" required disabled>
+          <option value="" disabled selected>Select Sub Category</option>
+      </select>
+
+      <label for="colors">Colors (comma-separated Ex. Red,Yellow)</label>
+      <input type="text" name="colors" id="colors" required>
+      <div id="colorContainer"></div>
+      <label for="color_images">Color Images</label>
+      <div id="colorImagesContainer">
+        <p style="font-size: 12px; color: gray;">Optional: Upload one image per color/size (match the order in 'Colors/Sizes')</p>
+      </div>
+
+      <label for="specifications">Specifications</label>
+      <textarea name="specifications" id="specifications"></textarea>
+
+      <label for="main_image">Main Image</label>
+      <input type="file" name="main_image" id="main_image" required>
+      <div id="mainImagePreview"></div>
+
+      <label for="gallery_images">Gallery Images</label>
+      <input type="file" name="gallery_images[]" id="gallery_images" multiple>
+      <div id="galleryPreview" style="display:flex; flex-wrap:wrap;"></div>
+
+      <label for="product_video">Product Video (optional)</label>
+      <input type="file" name="product_video" id="product_video" accept="video/*">
+      <div id="videoPreview"></div>
+
+
+      <button type="submit" class="submit-btn">Add Product</button>
+    </form>
+  </div>
+</div>
+<div id="viewModal" class="modal">
+  <div class="modal-content">
+    <h2>Product Details</h2>
+
+    <div id="viewContent"></div>
+  </div>
+</div>
+</body>
+</html>
+<script>
+  function confirmDelete(e) {
+    if(!confirm("Are you sure you want to delete this product? This action cannot be undone.")) {
+        e.preventDefault();
+        return false;
+    }
+    return true;
+}
+</script>
+<script>
+
+// ==============================
+//  UPDATE CATEGORY ID
+// ==============================
+function updateCategoryId(main, cat, sub) {
+    const match = categories.find(c =>
+        c.main_category === main &&
+        c.category_name === cat &&
+        c.sub_category === sub
+    );
+
+    if (match) {
+        document.getElementById("edit_category_id").value = match.category_id;
+    }
+}
+
+
+
+// ==============================
+// LOAD MAIN CATEGORIES
+// ==============================
+function loadEditMainCategories() {
+    const mainSelect = document.getElementById("edit_main_category");
+    mainSelect.innerHTML = '<option disabled selected>Select Main Category</option>';
+
+    const mainList = [...new Set(categories.map(c => c.main_category))];
+
+    mainList.forEach(main => {
+        const opt = document.createElement("option");
+        opt.value = main;
+        opt.textContent = main;
+        mainSelect.appendChild(opt);
+    });
+}
+
+
+
+// ==============================
+// LOAD CATEGORY NAMES BY MAIN
+// ==============================
+function loadEditCategoryNames(mainCategory) {
+    const catSelect = document.getElementById("edit_category_name");
+
+    catSelect.innerHTML = '<option disabled selected>Select Category Name</option>';
+    catSelect.disabled = false;
+
+    const filteredCats = categories.filter(c => c.main_category === mainCategory);
+    const names = [...new Set(filteredCats.map(c => c.category_name))];
+
+    names.forEach(name => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        catSelect.appendChild(opt);
+    });
+}
+
+
+
+// ==============================
+// LOAD SUBCATEGORIES
+// ==============================
+function loadEditSubCategories(mainCategory, categoryName) {
+    const subSelect = document.getElementById("edit_sub_category");
+
+    subSelect.innerHTML = '<option disabled selected>Select Sub Category</option>';
+    subSelect.disabled = false;
+
+    const filteredSubs = categories.filter(
+        c => c.main_category === mainCategory && c.category_name === categoryName
+    );
+
+    const subs = [...new Set(filteredSubs.map(c => c.sub_category))];
+
+    subs.forEach(sub => {
+        const opt = document.createElement("option");
+        opt.value = sub;
+        opt.textContent = sub;
+        subSelect.appendChild(opt);
+    });
+}
+
+
+
+// ==============================
+// OPEN EDIT PRODUCT MODAL
+// ==============================
+function openEditModal(productId) {
+
+    const modal = document.getElementById("editProductModal");
+
+    const data = JSON.parse(document.getElementById("product-data-" + productId).textContent);
+
+    // Load main categories
+    loadEditMainCategories();
+
+    // Basic fields
+    document.getElementById("edit_product_id").value = productId;
+    document.getElementById("edit_name").value = data.name;
+    document.getElementById("edit_description").value = data.description;
+    document.getElementById("edit_specifications").value = data.specifications;
+
+    // PRESELECT categories
+    document.getElementById("edit_main_category").value = data.main_category;
+
+    loadEditCategoryNames(data.main_category);
+    document.getElementById("edit_category_name").value = data.category_name;
+
+    loadEditSubCategories(data.main_category, data.category_name);
+    document.getElementById("edit_sub_category").value = data.sub_category;
+
+    // Set real category_id
+    document.getElementById("edit_category_id").value = data.category_id;
+
+
+
+    // ============================================
+    // PREVIEW MAIN IMAGE
+    // ============================================
+    const mainPreviewEdit = document.getElementById("mainImagePreviewEdit");
+    mainPreviewEdit.innerHTML = "";
+
+    if(data.main_image){
+        const img = document.createElement("img");
+        img.src = `/static/uploads/sellers/${data.main_image}`;
+        img.style.width = "120px";
+        img.style.borderRadius = "8px";
+        img.style.marginTop = "10px";
+        mainPreviewEdit.appendChild(img);
+    }
+
+
+
+    // ============================================
+    // PREVIEW GALLERY IMAGES
+    // ============================================
+    const galleryPreviewEdit = document.getElementById("galleryPreviewEdit");
+    galleryPreviewEdit.innerHTML = "";
+
+    galleryFiles = [];
+    if(data.gallery_images && data.gallery_images.trim() !== ""){
+        data.gallery_images.split(",").forEach(imgFile => {
+            galleryFiles.push(imgFile); // keep filenames for submission
+            const img = document.createElement("img");
+            img.src = `/static/uploads/sellers/${imgFile}`;
+            img.style.width = "100px";
+            img.style.margin = "5px";
+            img.style.borderRadius = "6px";
+            galleryPreviewEdit.appendChild(img);
+        });
+    }
+
+
+
+
+    // ============================================
+    // PREVIEW VIDEO
+    // ============================================
+    const videoPreviewEdit = document.getElementById("videoPreviewEdit");
+    videoPreviewEdit.innerHTML = "";
+
+    if(data.video && data.video.trim() !== ""){
+        const video = document.createElement("video");
+        video.src = `/static/uploads/sellers/${data.video}`;
+        video.controls = true;
+        video.style.width = "200px";
+        video.style.marginTop = "10px";
+        videoPreviewEdit.appendChild(video);
+    }
+
+
+
+    // ============================================
+    // SUBMIT UPDATE
+    // ============================================
+    document.getElementById("editProductForm").onsubmit = async function(e){
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        const res = await fetch("/update_product", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await res.json();
+
+        if(result.success){
+            alert("Product updated successfully!");
+            closeEditModal();
+            window.location.reload();
+        } else {
+            alert(result.message);
+        }
+    };
+
+    modal.style.display = "block";
+}
+
+
+
+// ==============================
+// CATEGORY CHANGE EVENTS
+// ==============================
+document.getElementById("edit_main_category").addEventListener("change", function(){
+
+    loadEditCategoryNames(this.value);
+
+    document.getElementById("edit_sub_category").innerHTML = "";
+    document.getElementById("edit_sub_category").disabled = true;
+
+    updateCategoryId(this.value, "", "");
+});
+
+document.getElementById("edit_category_name").addEventListener("change", function(){
+
+    const main = document.getElementById("edit_main_category").value;
+    loadEditSubCategories(main, this.value);
+
+    updateCategoryId(main, this.value, "");
+});
+
+document.getElementById("edit_sub_category").addEventListener("change", function(){
+
+    const main = document.getElementById("edit_main_category").value;
+    const cat = document.getElementById("edit_category_name").value;
+    const sub = this.value;
+
+    updateCategoryId(main, cat, sub);
+});
+
+
+
+// ==============================
+// CLOSE MODAL
+// ==============================
+function closeEditModal() {
+    document.getElementById("editProductModal").style.display = "none";
+}
+
+window.onclick = function(event){
+    const modal = document.getElementById("editProductModal");
+    if(event.target === modal){
+        closeEditModal();
+    }
+};
+
+</script>
+
+
+
+
+<script>
+const searchInput = document.getElementById("searchInput");
+let searchTimeout = null;
+
+searchInput.addEventListener("input", function() {
+    const query = this.value.trim();
+
+    // Clear previous timeout
+    if (searchTimeout) clearTimeout(searchTimeout);
+
+    // Debounce: wait 300ms after user stops typing
+    searchTimeout = setTimeout(() => {
+        fetch(`/seller_products?search=${encodeURIComponent(query)}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const newTable = doc.querySelector(".product-list");
+                if (newTable) {
+                    document.querySelector(".product-list").innerHTML = newTable.innerHTML;
+                }
+            })
+            .catch(err => console.error("Search error:", err));
+    }, 300);
+});
+</script>
+
+<script>
+const categories = JSON.parse('{{ categories | tojson | safe }}');
+
+// HTML elements
+const mainSelect = document.getElementById("main_category");
+const categorySelect = document.getElementById("category_name");
+const subSelect = document.getElementById("sub_category");
+
+// ─────────────────────────────────────────────
+// When MAIN CATEGORY changes → Load CATEGORY NAMES
+// ─────────────────────────────────────────────
+mainSelect.addEventListener("change", function () {
+    const selectedMain = this.value;
+
+    // Reset dropdowns
+    categorySelect.innerHTML = '<option value="" disabled selected>Select Category Name</option>';
+    subSelect.innerHTML = '<option value="" disabled selected>Select Sub Category</option>';
+    categorySelect.disabled = false;
+    subSelect.disabled = true;
+
+    // Load category_name options
+    const filteredNames = [...new Set(
+        categories
+            .filter(cat => cat.main_category === selectedMain)
+            .map(cat => cat.category_name)
+    )];
+
+    filteredNames.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        categorySelect.appendChild(option);
+    });
+});
+
+// ─────────────────────────────────────────────
+// When CATEGORY NAME changes → Load SUB CATEGORIES
+// ─────────────────────────────────────────────
+categorySelect.addEventListener("change", function () {
+    const selectedMain = mainSelect.value;
+    const selectedCategory = this.value;
+
+    // Reset sub_category
+    subSelect.innerHTML = '<option value="" disabled selected>Select Sub Category</option>';
+    subSelect.disabled = false;
+
+    categories.forEach(cat => {
+        if (cat.main_category === selectedMain && cat.category_name === selectedCategory) {
+            const option = document.createElement("option");
+            option.value = cat.sub_category;
+            option.textContent = cat.sub_category;
+            subSelect.appendChild(option);
+        }
+    });
+});
+</script>
+
+
+<script>
+function openViewModal(productId) {
+    const modal = document.getElementById("viewModal");
+    const viewContent = document.getElementById("viewContent");
+    const data = JSON.parse(document.getElementById("product-data-" + productId).textContent);
+
+    let html = "";
+    data.colors.forEach(color => {
+        const stock = data.color_stock ? (data.color_stock[color] ?? 0) : 0;
+        const price = data.color_price ? (data.color_price[color] ?? 0) : 0;
+        const original_price = data.color_original_price ? (data.color_original_price[color] ?? "") : "";
+        const img = data.color_images[color] ? `/static/uploads/sellers/${data.color_images[color]}` : "";
+
+        html += `
+        <div class="color-card" id="color-card-${color}">
+            <img src="${img || '/static/images/default-product.jpg'}" alt="${color}">
+            <div class="color-details">
+                <label>Color</label>
+                <input type="text" name="color_name_${color}" value="${color}" required>
+                <label>Stock</label>
+                <input type="number" name="stock_${color}" value="${stock}" min="0">
+                <label>Price</label>
+                <input type="number" name="price_${color}" value="${price}" step="0.01" min="0" required>
+                <label>Original Price</label>
+                <input type="number" name="original_price_${color}" value="${original_price}" step="0.01" min="0">
+                <label>Update Image</label>
+                <input type="file" name="color_images_${color}">
+                <button type="button" onclick="deleteColor('${color}')"
+                        style="background:red;color:white;border:none;padding:4px 8px;margin-top:5px;">Delete</button>
+            </div>
+        </div>`;
+    });
+
+    html += `
+    <div style="text-align:right; margin-top:10px;">
+        <button type="button" class="add-color-btn" onclick="addNewColor()">+ Add Color</button>
+        <button type="submit" class="submit-btn">Save Changes</button>
+    </div>
+    <div id="newColorsContainer"></div>`;
+
+    viewContent.innerHTML = `<form id="editProductFormView" data-product-id="${productId}" enctype="multipart/form-data">${html}</form>`;
+    modal.style.display = "block";
+
+    // Bind submit to correct form ID
+    document.getElementById("editProductFormView").onsubmit = async function(e){
+        e.preventDefault();
+        const formData = new FormData(this);
+        const pid = this.dataset.productId;
+        try {
+            const res = await fetch(`/update_product_colors/${pid}`, { method:"POST", body:formData });
+            const result = await res.json();
+            if(result.success){
+                alert("Product updated successfully!");
+                closeViewModal();
+                window.location.reload();
+            } else {
+                alert("Error: " + result.message);
+            }
+        } catch(err){
+            console.error(err);
+            alert("An error occurred.");
+        }
+    }
+}
+
+// Mark color for deletion by appending hidden input
+function deleteColor(color) {
+    const form = document.getElementById("editProductFormView");
+
+    const hidden = document.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = "delete_color_" + color;
+    hidden.value = "1";
+
+    form.appendChild(hidden); // <-- MUST be directly under the form
+    document.getElementById("color-card-" + color).remove();
+}
+
+function addNewColor() {
+    const container = document.getElementById("newColorsContainer");
+    const id = Date.now();
+    container.insertAdjacentHTML("beforeend", `
+        <div class="color-block" style="border:1px solid #ccc; padding:10px; border-radius:6px; margin-bottom:10px;">
+            <label>Color Name:</label>
+            <input type="text" name="new_color_name_${id}" required>
+            <label>Stock:</label>
+            <input type="number" name="new_stock_${id}" min="0" required>
+            <label>Price:</label>
+            <input type="number" step="0.01" name="new_price_${id}" required>
+            <label>Original Price:</label>
+            <input type="number" step="0.01" name="new_original_price_${id}">
+            <label>Color Image:</label>
+            <input type="file" name="new_color_image_${id}" accept="image/*" required>
+        </div>
+    `);
+}
+
+function closeViewModal() {
+    document.getElementById("viewModal").style.display = "none";
+}
+</script>
+
+
+{% for p in products %}
+<script type="application/json" id="product-data-{{ p.product_id }}">
+{
+  "colors": {{ p.colors | default([]) | tojson }},
+  "stock": {{ p.stock | default(0) | tojson }},
+  "color_stock": {{ p.color_stock | default({}) | tojson }},
+  "color_images": {{ p.color_images | default({}) | tojson }},
+  "color_price": {{ p.color_price | default({}) | tojson }},
+  "color_original_price": {{ p.color_original_price | default({}) | tojson }},
+
+  "name": {{ p.name | default('') | tojson }},
+  "description": {{ p.description | default('') | tojson }},
+  "category": {{ p.category | default('') | tojson }},
+  "category_id": {{ p.category_id | default(0) | tojson }},
+  "discount": {{ p.discount | default(0) | tojson }},
+  "specifications": {{ p.specifications | default('') | tojson }},
+  "main_image": {{ p.main_image | default('') | tojson }},
+  "gallery_images": {{ p.gallery_images | default('') | tojson }},
+  "video": {{ p.video | default('') | tojson }}
+}
+</script>
+
+{% endfor %}
+
+
+<script>
+
+  // Get modal and open button
+  var modal = document.getElementById("addProductModal");
+  var btn = document.querySelector(".add-btn");
+  var span = document.getElementsByClassName("close")[0];
+
+  // Open modal
+  btn.onclick = function(e) {
+    e.preventDefault();
+    modal.style.display = "block";
+  }
+
+  // Close modal when clicking X
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  // Close modal when clicking outside modal content
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+<script>
+// ---------------------------
+// MAIN IMAGE PREVIEW WITH DELETE
+// ---------------------------
+document.getElementById("main_image").addEventListener("change", function () {
+    const previewContainer = document.getElementById("mainImagePreview");
+    previewContainer.innerHTML = ""; // clear previous
+
+    const file = this.files[0];
+    if (file) {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.width = "120px";
+        img.style.borderRadius = "8px";
+        img.style.marginTop = "10px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-10px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+        deleteBtn.onclick = () => {
+            previewContainer.innerHTML = "";
+            document.getElementById("main_image").value = ""; // reset input
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    }
+});
+
+// ---------------------------
+// GALLERY IMAGE PREVIEW WITH DELETE
+// ---------------------------
+// GLOBAL storage of selected gallery files
+let addGalleryFiles = [];
+
+document.getElementById("gallery_images").addEventListener("change", function (event) {
+    const newFiles = Array.from(event.target.files);
+
+    // VALIDATE
+    for (let f of newFiles) {
+        if (!validImageTypes.includes(f.type)) {
+            showWarning("❌ Only image files are allowed in Gallery.");
+            return;
+        }
+    }
+
+    // Add new files to global array
+    addGalleryFiles = addGalleryFiles.concat(newFiles);
+
+    // Update the input files manually
+    const dt = new DataTransfer();
+    addGalleryFiles.forEach(f => dt.items.add(f));
+    document.getElementById("gallery_images").files = dt.files;
+
+    updateAddGalleryPreview();
+});
+
+function updateAddGalleryPreview() {
+    const previewContainer = document.getElementById("galleryPreview");
+    previewContainer.innerHTML = "";
+
+    addGalleryFiles.forEach((file, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.width = "100px";
+        img.style.margin = "5px";
+        img.style.borderRadius = "6px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-5px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+
+        deleteBtn.onclick = () => {
+            addGalleryFiles.splice(index, 1);
+            const dt = new DataTransfer();
+            addGalleryFiles.forEach(f => dt.items.add(f));
+            document.getElementById("gallery_images").files = dt.files;
+            updateAddGalleryPreview();
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    });
+}
+
+
+// ---------------------------
+// VIDEO PREVIEW WITH DELETE
+// ---------------------------
+document.getElementById("product_video").addEventListener("change", function () {
+    const previewContainer = document.getElementById("videoPreview");
+    previewContainer.innerHTML = "";
+
+    const file = this.files[0];
+    if (file) {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const video = document.createElement("video");
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.style.width = "200px";
+        video.style.marginTop = "10px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-10px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+        deleteBtn.onclick = () => {
+            previewContainer.innerHTML = "";
+            document.getElementById("product_video").value = ""; // reset input
+        };
+
+        wrapper.appendChild(video);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    }
+});
+</script>
+<script>
+// VALID IMAGE TYPES
+const validImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp", "image/gif"];
+
+// Show warning function
+function showWarning(message) {
+    alert(message); // simple popup (can be replaced by nicer modal)
+}
+
+// ---------------------------
+// VALIDATE MAIN IMAGE (no videos allowed)
+// ---------------------------
+document.getElementById("main_image").addEventListener("change", function () {
+    const file = this.files[0];
+
+    if (file && !validImageTypes.includes(file.type)) {
+        showWarning("❌ Invalid file type! Main Image must be an IMAGE (jpg, png, webp, gif).");
+        this.value = ""; // reset
+        document.getElementById("mainImagePreview").innerHTML = "";
+        return;
+    }
+});
+ 
+
+// ---------------------------
+// VALIDATE GALLERY IMAGES (no videos allowed)
+// ---------------------------
+document.getElementById("gallery_images").addEventListener("change", function () {
+    const files = Array.from(this.files);
+
+    for (let f of files) {
+        if (!validImageTypes.includes(f.type)) {
+            showWarning("❌ One or more files are not images! Gallery only accepts images.");
+            this.value = ""; // reset files
+            document.getElementById("galleryPreview").innerHTML = "";
+            return;
+        }
+    }
+});
+</script>
+<script>
+document.getElementById("colors").addEventListener("input", function () {
+    const container = document.getElementById("colorContainer");
+    container.innerHTML = "";
+    
+    const colors = this.value.split(",").map(c => c.trim()).filter(c => c);
+
+    colors.forEach(color => {
+        container.innerHTML += `
+            <div style="margin-bottom:10px; padding:10px; border:1px solid #ccc;">
+                <h4>${color}</h4>
+
+                <label>Stock for ${color}</label>
+                <input type="number" name="stock_${color}" min="0" required>
+
+                <label>Price for ${color}</label>
+                <input type="number" step="0.01" name="price_${color}" min="0" required>
+
+                <label>Image for ${color}</label>
+                <input type="file" name="color_images_${color}" required>
+
+                <label>Original Price for ${color} (optional)</label>
+                <input type="number" step="0.01" name="original_price_${color}">
+
+            </div>
+        `;
+    });
+});
+</script>
+<script>
+  window.addEventListener("click", function(event) {
+    const editModal = document.getElementById("editProductModal");
+    const viewModal = document.getElementById("viewModal");
+    const addModal = document.getElementById("addProductModal");
+
+    if (event.target === editModal) closeEditModal();
+    if (event.target === viewModal) closeViewModal();
+    if (event.target === addModal) addModal.style.display = "none";
+  });
+</script>
+<!-- FOR THE EDIT MODAL PREVIEW -->
+ <script>
+// ---------------------------
+// MAIN IMAGE PREVIEW WITH DELETE
+// ---------------------------
+document.getElementById("main_imageEdit").addEventListener("change", function () {
+    const previewContainer = document.getElementById("mainImagePreviewEdit");
+    previewContainer.innerHTML = ""; // clear previous
+
+    const file = this.files[0];
+    if (file) {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.width = "120px";
+        img.style.borderRadius = "8px";
+        img.style.marginTop = "10px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-10px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+        deleteBtn.onclick = () => {
+            previewContainer.innerHTML = "";
+            document.getElementById("main_imageEdit").value = ""; // reset input
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    }
+});
+
+// ---------------------------
+// GALLERY IMAGE PREVIEW WITH DELETE
+// ---------------------------
+// GLOBAL storage of selected gallery files
+let editGalleryFiles = [];
+document.getElementById("gallery_imagesEdit").addEventListener("change", function (event) {
+    const newFiles = Array.from(event.target.files);
+
+    // VALIDATE
+    for (let f of newFiles) {
+        if (!validImageTypes.includes(f.type)) {
+            showWarning("❌ Only image files are allowed in Gallery.");
+            return;
+        }
+    }
+
+    // Add new files to global array
+    editGalleryFiles = editGalleryFiles.concat(newFiles);
+
+    // Update the input files manually
+    const dt = new DataTransfer();
+    editGalleryFiles.forEach(f => {
+        if (typeof f !== "string") dt.items.add(f);
+    });
+    document.getElementById("gallery_imagesEdit").files = dt.files;
+
+    updateEditGalleryPreview();
+});
+
+function updateEditGalleryPreview() {
+    const previewContainer = document.getElementById("galleryPreviewEdit");
+    previewContainer.innerHTML = "";
+
+    editGalleryFiles.forEach((file, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const img = document.createElement("img");
+        img.src = typeof file === "string" ? `/static/uploads/sellers/${file}` : URL.createObjectURL(file);
+        img.style.width = "100px";
+        img.style.margin = "5px";
+        img.style.borderRadius = "6px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-5px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+
+        deleteBtn.onclick = () => {
+            editGalleryFiles.splice(index, 1);
+            const dt = new DataTransfer();
+            editGalleryFiles.forEach(f => {
+                if (typeof f !== "string") dt.items.add(f);
+            });
+            document.getElementById("gallery_imagesEdit").files = dt.files;
+            updateEditGalleryPreview();
+        };
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    });
+}
+
+
+// ---------------------------
+// VIDEO PREVIEW WITH DELETE
+// ---------------------------
+document.getElementById("product_videoEdit").addEventListener("change", function () {
+    const previewContainer = document.getElementById("videoPreviewEdit");
+    previewContainer.innerHTML = "";
+
+    const file = this.files[0];
+    if (file) {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+        wrapper.style.display = "inline-block";
+
+        const video = document.createElement("video");
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.style.width = "200px";
+        video.style.marginTop = "10px";
+
+        const deleteBtn = document.createElement("span");
+        deleteBtn.textContent = "×";
+        deleteBtn.style.position = "absolute";
+        deleteBtn.style.top = "0";
+        deleteBtn.style.right = "-10px";
+        deleteBtn.style.cursor = "pointer";
+        deleteBtn.style.background = "black";
+        deleteBtn.style.color = "white";
+        deleteBtn.style.borderRadius = "50%";
+        deleteBtn.style.padding = "2px 6px";
+        deleteBtn.onclick = () => {
+            previewContainer.innerHTML = "";
+            document.getElementById("product_videoEdit").value = ""; // reset input
+        };
+
+        wrapper.appendChild(video);
+        wrapper.appendChild(deleteBtn);
+        previewContainer.appendChild(wrapper);
+    }
+});
+</script>
+

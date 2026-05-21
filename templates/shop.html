@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='homepage.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      .header-actions a img {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-right: 5px;
+        font-weight: 100;
+      }
+
+      .logout-btn {
+        color: rgb(255, 255, 255);
+        margin-left: 10px;
+        text-decoration: none;
+
+      }
+      .logout-btn:hover {
+        text-decoration: underline;
+      }
+      .user-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-photo {
+        width: 25px !important;
+        height: 25px !important;
+        border-radius: 50%;
+        object-fit: cover;
+        background: none !important;
+        filter: none !important;
+        opacity: 1 !important;
+        display: inline-block;
+      }
+
+      .user-btn {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;                  /* Adds space between elements */
+        cursor: pointer;
+      }
+
+      .user-email {
+        font-size: 12px;
+        color: white;
+      }
+
+      .user-btn:hover .user-email,
+      .user-btn:hover .arrow {
+        color: #ffcc00; /* Optional highlight color */
+      }
+
+
+      .user-btn img {
+        width: 200px;
+        height: 200px;
+        margin-right: -1px;
+        margin-left: 5px;
+      }
+
+      .user-btn .arrow {
+        margin-left: 5px;
+        font-size: 8px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        z-index: 10;
+        right: 0;
+      }
+
+      .dropdown-content a {
+        display: block;
+        padding: 10px 14px;
+        color: #000000;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #9d9d9d;
+        color: #ffffff;
+      }
+
+      .user-dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .profile-photo {
+        width: clamp(25px, 3vw, 50px);  /* Minimum 25px, scales up to 50px */
+        height: clamp(25px, 3vw, 50px);
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+        .seller-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 10px 15px;
+        }
+
+        .product-info h3 {
+            font-size: 16px;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .product-info p {
+            font-size: 14px;
+            color: #777;
+            margin: 3px 0;
+        }
+
+        .product-info .price {
+            font-weight: 600;
+            color: #ff6600;
+            margin-top: 5px;
+        }
+
+        .seller-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .seller-header img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .seller-header h2 {
+            font-size: 24px;
+            margin: 0;
+            color: #222;
+        }
+
+        .seller-header p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+          body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+  }
+
+  .shop-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 30px 20px 20px 20px;
+      background-color: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin: 20px;
+  }
+
+  .shop-header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ff6600;
+  }
+
+  .shop-header h1 {
+      font-size: 28px;
+      margin: 0;
+      color: #222;
+  }
+
+  .shop-header p {
+      margin: 5px 0 0 0;
+      font-size: 16px;
+      color: #555;
+  }
+
+  .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      padding: 20px;
+      margin: 0 20px 40px 20px;
+  }
+
+  .product-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+  }
+
+  .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+  }
+
+  .product-info {
+      padding: 15px;
+  }
+
+  .product-info h3 {
+      font-size: 18px;
+      margin: 5px 0;
+      color: #222;
+  }
+
+  .product-info p {
+      font-size: 14px;
+      color: #555;
+      margin: 3px 0;
+  }
+
+  .product-info .price {
+      font-weight: 600;
+      color: #ff6600;
+      margin-top: 8px;
+      font-size: 16px;
+  }
+
+  .product-info .sold {
+      font-size: 12px;
+      color: #999;
+  }
+
+  .no-products {
+      font-size: 16px;
+      color: #777;
+      text-align: center;
+      margin-top: 30px;
+  }
+  .shop-tabs {
+    display: flex;
+    gap: 20px;
+    margin: 20px;
+    border-bottom: 2px solid #ddd;
+}
+.shop-tabs a {
+    text-decoration: none;
+    color: #555;
+    padding-bottom: 5px;
+    font-weight: 500;
+}
+.shop-tabs a.active {
+    border-bottom: 3px solid #ff6600;
+    color: #ff6600;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.product-card:hover { transform: translateY(-3px); }
+
+.product-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.product-info { padding: 10px; }
+.product-info h3 { font-size: 14px; color: #333; margin: 5px 0; height: 40px; overflow: hidden; }
+
+.price-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.price { color: #ff6600; font-weight: 600; }
+.price-old { text-decoration: line-through; color: #999; font-size: 12px; }
+
+.badges { margin-top: 5px; display: flex; gap: 5px; }
+.badge { font-size: 10px; color: #ff6600; border: 1px solid #ff6600; padding: 2px 5px; border-radius: 3px; }
+.badge.new { background-color: #ff6600; color: #fff; }
+
+.rating-sold {
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
+}
+.all-products-rect {
+    margin: 20px;
+    padding: 15px 20px;
+    background-color: #ff6600;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    border-radius: 8px;
+    text-align: center;
+    width: fit-content;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.all-products-rect:hover {
+    background-color: #e55b00;
+}
+/* 6-column grid like homepage */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+    justify-content: start; /* align to left by default */
+    padding: 20px;
+    margin: 0 20px 40px 20px;
+}
+
+/* When more than 1 product, center the grid */
+.product-grid:has(.product:nth-child(n+2)) {
+    justify-content: center;
+}
+
+/* Product card */
+.product {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    overflow: hidden;
+    width: 100%;
+    max-width: 180px;
+    text-align: left;
+    text-decoration: none;
+}
+
+.product:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.product img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.product h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;
+    margin: 8px 10px 6px;
+    line-height: 1.3em;
+    height: 2.6em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.product-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 10px;
+}
+
+.price {
+    color: #e53935;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.sold {
+    color: #666;
+    font-size: 12px;
+}
+
+    </style>
+</head>
+<body>
+   <header>
+    <a href="{{ url_for('homepage') }}" class="logo">FitHub</a>
+
+<div class="search-bar">
+  <form action="{{ url_for('category') }}" method="get">
+    <input type="text" name="q" placeholder="Search for products..." required>
+    <button type="submit">
+      <img src="{{ url_for('static', filename='magnifier.png') }}" alt="Search">
+    </button>
+  </form>
+</div>
+    <!-- Right actions -->
+    <div class="header-actions">
+      <a href="{{ url_for('signup') }}" target="_blank" rel="noopener noreferrer">
+        <img src="/static/store.png" alt="Sell"> Start Selling
+        
+      <a href="{{ url_for('add_to_cart') }}">
+      <span class="cart-badge {% if cart_count == 0 %}hidden{% endif %}">{{ cart_count }}</span>
+          <img src="/static/shopping-cart.png" alt="Cart"> Cart
+      </a>
+        {% if session.get('loggedin') %}
+        <div class="user-dropdown">
+          <button class="user-btn">
+          <img 
+            src="{{ session['photo']}}" 
+            alt="Profile Photo" 
+            class="profile-photo"
+          >
+          <span class="user-email">{{ session['email'] }}</span>
+          <span class="arrow">▼</span>
+        </button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('purchase') }}">My Purchase</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+        {% else %}
+          <a href="/login"><img src="/static/enter (1).png" alt="User"> Login / Sign Up</a>
+        {% endif %}
+
+    </div>
+  </header>
+<div class="categories-bar">  
+<ul>
+    <button class="scroll-left">‹</button>
+
+    {% for main, categories in category_tree.items() %}
+        {% for category, cat_data in categories.items() %}
+            <li class="dropdown">
+                <a href="#"
+                   data-target="{{ category|lower|replace(' ', '') }}">
+                    {{ category }}
+                </a>
+            </li>
+        {% endfor %}
+    {% endfor %}
+
+    <button class="scroll-right">›</button>
+</ul>
+
+  <!-- Shared Mega Dropdown -->
+  <div class="mega-dropdown">
+    <!-- Sidebar (column 1) -->
+<div class="mega-sidebar">
+    {% for main, categories in category_tree.items() %}
+        {% for category, cat_data in categories.items() %}
+            <a href="#" class="mega-item"
+               data-target="{{ category|lower|replace(' ', '') }}">
+               {{ category }}
+            </a>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+
+    <!-- Dynamic Content (column 2) -->
+ <div class="mega-content">
+  {% for main, categories in category_tree.items() %}
+    {% for category, cat_data in categories.items() %}
+        <div class="mega-panel" id="{{ category|lower|replace(' ', '') }}">
+            <div class="col-2">
+                <!-- "ALL" goes to main category -->
+              <div class="circle-item">
+                  <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}">
+                      <img src="{{ url_for('static', filename='images/plus.jpg') }}">
+                      <p>ALL</p>
+                  </a>
+              </div>
+                {% for sub in cat_data.subcats %}
+                <div class="circle-item">
+                    <a href="{{ url_for('category') }}?main={{ main|urlencode }}&cat={{ category|urlencode }}&sub={{ sub.name|urlencode }}">
+                        <img src="{{ url_for('static', filename='images/' + sub.image) }}" alt="{{ sub.name }}">
+                        <p>{{ sub.name }}</p>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+  </div>
+</div>
+
+  <!-- Shop Content -->
+<!-- Seller Header -->
+<div style="margin-top: 140px;"  class="shop-header">
+    <img src="{{ url_for('static', filename='uploads/sellers/' + seller_logo) }}" alt="{{ seller_name }}">
+    <div>
+        <h1>{{ seller_name }}</h1>
+        <p>Check out the products from this seller.</p>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="shop-header" style="margin-top: 20px; padding: 10px 650px; max-width: 1100px;">
+    <div>
+        <h2 style="text-align: center;">All Products</h2>
+        <p style="text-align: center;">Browse all products from this seller.</p>
+    </div>
+</div>
+
+<!-- Products Grid -->
+<!-- Products Grid -->
+<div class="product-grid">
+    {% if seller_products %}
+        {% for p in seller_products %}
+            <a href="{{ url_for('view_product', product_id=p.product_id) }}">
+                <div class="product">
+                    <!-- MAIN IMAGE -->
+                    <img src="{{ url_for('static', filename='uploads/sellers/' + p.main_image) }}" alt="{{ p.name }}">
+                    
+                    <!-- NAME -->
+                    <h3>{{ p.name }}</h3>
+                    
+                    <div class="product-info">
+                        <!-- PRICE -->
+                        {% if p.min_price == p.max_price %}
+                            <span class="price">₱{{ '%.2f' | format(p.min_price) }}</span>
+                        {% else %}
+                            <span class="price">₱{{ '%.2f' | format(p.min_price) }}</span>
+                        {% endif %}
+
+                        <!-- SOLD COUNT -->
+                        <span class="sold">{{ p.total_sold }} sold</span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <p class="no-products">No products available yet.</p>
+    {% endif %}
+</div>
+
+
+
+
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 FitHub. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>

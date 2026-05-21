@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance - Driver Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='driver_performance.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHubExpress</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('driver_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('driver_deliveries') }}">My Deliveries</a></li>
+        <li><a href="{{ url_for('driver_earnings') }}">Earnings</a></li>
+        <li class="active"><a href="{{ url_for('driver_performance') }}">Performance</a></li>
+        <li><a href="{{ url_for('driver_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('driver_settings') }}">Settings</a></li>
+        <li><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="page-title">Driver's Performance</div>
+      <div class="profile">
+        <img src="static/images/profile_icon.png" alt="Driver Profile">
+        <span>Driver Name:</span><span class="user-email">{{ session['first_name'] }}</span>
+      </div>
+    </header>
+
+    <section class="performance-summary">
+      <div class="card">
+        <h3>Total Deliveries</h3>
+        <p>{{ total_deliveries }}</p>
+      </div>
+      <div class="card">
+        <h3>Average Rating</h3>
+        <p>{{ avg_rating }} ★</p>
+      </div>
+      <div class="card">
+        <h3>On-Time Rate</h3>
+        <p>{{ on_time_rate }}%</p>
+      </div>
+      <div class="card">
+        <h3>Cancelled Orders</h3>
+        <p>{{ cancelled_orders }}</p>
+      </div>
+    </section>
+
+      <section class="chart-section">
+        <h2>Weekly Delivery Performance</h2>
+
+        <canvas id="weeklyChart"></canvas>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+          const labels = {{ weekly_labels | tojson }};
+          const data = {{ weekly_values | tojson }};
+
+          const ctx = document.getElementById('weeklyChart').getContext('2d');
+
+          new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'Deliveries',
+                data: data,
+                borderWidth: 3,
+                tension: 0.3,
+                pointRadius: 5
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+        </script>
+      </section>
+
+
+
+      <section class="feedback-section">
+        <h2>Customer Feedback</h2>
+
+        {% if reviews %}
+          {% for r in reviews %}
+            <div class="feedback-card">
+              <p>“{{ r.review }}”</p>
+              <span>- {{ r.first_name }} {{ r.last_name }}, {{ r.rating }} ★</span>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>No feedback yet.</p>
+        {% endif %}
+      </section>
+
+  </div>
+</body>
+</html>

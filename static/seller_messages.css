@@ -1,0 +1,509 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f5f6fa;
+  color: #333;
+}
+
+/* Layout Wrapper */
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed; /* make it stick */
+  top: 0;
+  left: 0;
+  height: 100vh; /* full viewport height */
+  width: 250px;
+  background: #111;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto; /* scroll if content exceeds height */
+}
+
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-header h2 {
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  flex-grow: 1;
+}
+
+.sidebar-menu li {
+  margin: 15px 0;
+}
+
+.sidebar-menu a {
+  color: #ddd;
+  text-decoration: none;
+  display: block;
+  padding: 10px 30px;
+  transition: 0.3s;
+}
+
+.sidebar-menu li.active a,
+.sidebar-menu a:hover {
+  background: #222;
+  color: #fff;
+}
+
+.sidebar-menu .logout a {
+  color: #ff4d4d;
+}
+
+.sidebar-menu .logout a:hover {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* same as sidebar width */
+  padding: 30px 40px;
+}
+
+
+/* Header / Topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.topbar h1 {
+  font-size: 26px;
+  color: #222;
+}
+
+.seller-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.seller-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Overview Cards */
+.overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* Chart Placeholder */
+.chart-section {
+  margin-bottom: 40px;
+}
+
+.chart-placeholder {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.chart-placeholder h3 {
+  margin-bottom: 10px;
+}
+
+/* Recent Orders */
+.recent-orders {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.recent-orders h3 {
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #fafafa;
+  font-weight: 600;
+  color: #555;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #fff;
+}
+
+.status.delivered {
+  background: #28a745;
+}
+
+.status.pending {
+  background: #ffc107;
+  color: #111;
+}
+
+.status.cancelled {
+  background: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .dashboard {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .main-content {
+    padding: 20px;
+  }
+  .overview {
+    grid-template-columns: 1fr;
+  }
+}
+.sidebar .logo {
+  text-align: center;
+}
+
+.sidebar .logo img {
+  width: 60px;
+}
+
+.sidebar .logo h2 {
+  font-size: 18px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .messages-wrapper {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Left list */
+    .message-list {
+      width: 35%;
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      height: 550px;
+      overflow-y: auto;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+
+    .message-item {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #e2e2e2;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .message-item:hover {
+      background: #f0f4ff;
+    }
+
+    .message-item .name {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .message-item .snippet {
+      color: #555;
+      font-size: 14px;
+    }
+
+    /* Right chat panel */
+    .message-view {
+      width: 65%;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 550px;
+    }
+
+    .message-header {
+      font-size: 18px;
+      font-weight: bold;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .chat-msg {
+      max-width: 70%;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .from-buyer {
+      background: #e8f0ff;
+      align-self: flex-start;
+    }
+
+    .from-seller {
+      background: #d1ffd1;
+      align-self: flex-end;
+    }
+
+    .reply-box {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .reply-box input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+
+    .reply-box button {
+      padding: 12px 20px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .reply-box button:hover {
+      background: #005fcc;
+    }
+
+    @media (max-width: 900px) {
+      .messages-wrapper {
+        flex-direction: column;
+      }
+      .message-list,
+      .message-view {
+        width: 100%;
+        height: auto;
+      }
+    }
+    /* Messages Page Internal Style (safe to keep here) */
+    .messages-wrapper {
+      display: flex;
+      gap: 20px;
+    }
+
+    .message-list {
+      width: 35%;
+      background: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      height: 550px;
+      overflow-y: auto;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+
+    .message-item {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #e2e2e2;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .message-item:hover {
+      background: #f0f4ff;
+    }
+
+    .message-item .name {
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .message-item .snippet {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .message-view {
+      width: 65%;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 550px;
+    }
+
+    .message-header {
+      font-size: 18px;
+      font-weight: 600;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding-top: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-msg {
+      max-width: 70%;
+      padding: 12px 15px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .from-buyer {
+      background: #e8f0ff;
+      align-self: flex-start;
+    }
+
+    .from-seller {
+      background: #d4ffd4;
+      align-self: flex-end;
+    }
+
+    .reply-box {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .reply-box input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+    }
+
+    .reply-box button {
+      padding: 12px 18px;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .reply-box button:hover {
+      background: #005fcc;
+    }

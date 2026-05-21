@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up | FitHub</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+    html,body{height:100%}
+    body{
+      background: url("{{ url_for('static', filename='bg_background.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      height:100vh;
+    }
+
+    .container{
+      width:100%;
+      max-width:1000px;
+      height:700px;
+      display:flex;
+      position:relative;
+      background:rgba(20,20,20,0.85);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 0 15px rgba(255,76,41,0.3);
+    }
+
+    /* LEFT */
+    .left-box{
+      width:50%;
+      padding:40px;
+      z-index:2;
+    }
+    .logo{width:80px;display:block;margin:0 auto}
+    h2{text-align:center;margin-top:10px;font-weight:600}
+    p.subtitle{text-align:center;font-size:13px;color:#bbb;margin-bottom:18px}
+
+    .account-types{display:flex;gap:10px;margin:15px 0}
+    .type-btn{
+      flex:1;padding:10px;border-radius:8px;background:#222;border:1px solid #444;color:#fff;width: 133px;
+      cursor:pointer;transition:all .18s ease;
+    }
+    .type-btn.active{background:#ff4c29;border-color:#ff4c29}
+    .type-btn a {
+        color: #fff;
+        text-decoration: none; /* removes underline */
+        display: block;        /* makes the whole button clickable */
+    }
+    input{
+      margin-top:10px;padding:10px;width:100%;background:#222;border:1px solid #444;border-radius:8px;color:#fff;
+    }
+    input:focus{border-color:#ff4c29; outline: none}
+
+    .btn-login{
+      margin-top:12px;width:100%;padding:12px;border-radius:8px;border:none;background:#ff4c29;color:#fff;font-weight:600;
+      cursor:pointer;transition:transform .12s ease;
+    }
+    .btn-login:hover{transform:scale(1.02)}
+
+    .signup-container{font-size:13px;text-align:center;margin-top:14px;color:#bbb}
+    .signup-container a{color:#ff4c29;text-decoration:none;font-weight:600}
+
+    /* SOCIAL BUTTONS (Buyer only) */
+    .social-box{margin-top:14px;display:none}
+    .social-row{display:flex;gap:10px}
+    .social-btn{
+      flex:1;padding:10px;border-radius:8px;border:none;cursor:pointer;font-weight:600;
+    }
+    .social-btn.google{background:#fff;color:#111}
+    .social-btn.facebook{background:#1877f2;color:#fff}
+
+    /* RIGHT VIDEO */
+    .right-box{width:50%;position:relative;overflow:hidden}
+    .overlay{
+        position:absolute;
+        bottom:0;
+        left:0;
+        width:100%;
+        height:60%; /* adjust how tall the fade is */
+        background:linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(0,0,0,0.8) 100%);
+        }
+    .tagline{position:absolute;bottom:40px;left:30px}
+    .tagline h1{color:#ff4c29;font-size:24px}
+
+    /* SLIDE PANEL — anchored at boundary (left:50%) and moves across right container only
+       IMPORTANT: hidden by visibility/pointer-events until activated so content is not visible/focusable */
+    .slide-panel{
+      position:absolute;
+      top:0;
+      left:50%;                 /* anchor at the seam between left & right */
+      width:50%;                /* same width as right container */
+      height:100%;
+      padding:35px;
+      background:#121212;
+      transform:translateX(-100%); /* start fully off-screen to the left of the right container */
+      transition:transform .80s cubic-bezier(.2,.9,.2,1), visibility 0s linear .01s;
+      z-index:4;                 /* above right-box but below left-box */
+      box-shadow: -8px 0 24px rgba(0,0,0,0.5);
+      visibility: hidden;       /* hidden by default (so not visible) */
+      
+    }
+    #panelContent {
+        max-height: 88%;
+        overflow-y: auto;
+        padding-right: 5px;
+        }
+    .slide-panel.active{
+      transform:translateX(0);   /* slide rightwards to cover the right container */
+      visibility: visible;       /* make visible immediately */
+      pointer-events: auto;      /* allow interaction */
+      transition-delay: 0s;      /* ensure immediate visibility when activated */
+    }
+
+    .close-btn{background:none;color:#ff4c29;border:none;font-size:14px;cursor:pointer;text-align:right;width:100%;margin-bottom:10px}
+    .slide-panel h3{font-size:20px;margin-bottom:10px;color:#fff}
+    .slide-panel input{margin-top:8px;padding:10px;width:100%;background:#222;border:1px solid #333;border-radius:8px;color:#fff}
+
+    /* ensure left-box remains on top visually */
+    .left-box{position:relative;z-index:5}
+    .right-box img.right-img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        filter:brightness(100%);
+        }
+    .terms-label {
+    font-size: 12px;
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    }
+
+    .terms-label input {
+    margin: 0;
+    }
+
+    .terms-label .highlight {
+    color: #ff4c29;
+    font-weight: 600;
+    }
+    /* Social Buttons */
+    .social-login {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    }
+    .social-login button {
+    flex: 1;
+    border-radius: 12px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .social-login button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+    }
+
+    .btn-fb {
+    background: #3b5998;
+    color: #fff;
+    }
+
+    .btn-google {
+    background: #fff;
+    color: #333;
+    }
+
+    .btn-icon {
+    width: 18px;
+    height: 18px;
+    }
+        .terms {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #bbb;
+        text-align: left;
+        width: 100%;           /* ✅ force it to align with the input fields */
+        display: flex;
+        align-items: center;
+        }
+        .terms-label {
+        display: flex;        /* ✅ instead of inline-flex */
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+        }
+        .terms-label input {
+        width: 20px;
+        height: 15px;
+        }
+
+    .highlight {
+    color: #ff4c29;
+    font-weight: 600;
+    text-decoration: none;
+    }
+    .panelBtn, .panelBtnSecondary {
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+    }
+
+    .panelBtn {
+        background: #ff4c29;
+        color: #fff;
+    }
+
+    .panelBtn:hover {
+        transform: scale(1.02);
+        background: #ff674a;
+    }
+
+    .panelBtnSecondary {
+        background: #333;
+        color: #fff;
+        border: 1px solid #555;
+    }
+
+    .panelBtnSecondary:hover {
+        transform: scale(1.02);
+        background: #444;
+    }
+    .panel-section-title {
+      margin-top: 9px;   /* adjust gap above */
+      margin-bottom: 0px; /* adjust small gap below */
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    /* Section title spacing */
+    .panel-section-title {
+        margin-top: 10px;
+        margin-bottom: 8px;
+        font-size: 15px;
+        color: #ff4c29;
+        font-weight: 600;
+    }
+
+    /* Input + Select styling */
+    .slide-panel input,
+    .slide-panel select {
+        width: 100%;
+        padding: 10px;
+        background: #1e1e1e;
+        border: 1px solid #444;
+        border-radius: 8px;
+        color: white;
+        margin-bottom: 10px;
+        font-size: 13px;
+        transition: 0.25s;
+    }
+
+    .slide-panel input:focus,
+    .slide-panel select:focus {
+        border-color: #ff4c29;
+        outline: none;
+    }
+
+    /* Label small text */
+    .smallLabel {
+        font-size: 12px;
+        color: #bbb;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    /* File input special */
+    .slide-panel input[type="file"] {
+        border: none;
+        padding: 5px;
+        background: none;
+    }
+
+    /* Next button */
+    .panelBtn {
+        width: 100%;
+        padding: 12px;
+        background: #ff4c29;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.25s;
+    }
+
+    .panelBtn:hover {
+        background: #ff6547;
+        transform: scale(1.02);
+    }
+    /* MODAL */
+    .modal{
+        display:none;position:fixed;z-index:999;left:0;top:0;width:100%;height:100%;
+        background:rgba(0,0,0,0.7);justify-content:center;align-items:center;
+    }
+    .modal-content{
+        background:#1c1c1c;padding:25px;border-radius:10px;width:90%;max-width:550px;
+        color:#fff;
+    }
+    .modal-content h2{color:#ff4c29;margin-bottom:10px}
+    .closeModal{
+        margin-top:15px;background:#ff4c29;border:none;padding:10px;
+        width:100%;border-radius:7px;color:#fff;font-weight:600;cursor:pointer;
+    }
+    .closeModal:hover{opacity:0.9}
+
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-wrapper input {
+        width: 100%;
+        padding-right: 40px;
+    }
+
+    .eye-toggle {
+        position: absolute;
+        right: 10px;
+        top: 60%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        opacity: 0.7;
+        filter: invert(50%);
+    }
+    .eye-toggle:hover {
+        opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+
+  <div class="container">
+    <!-- LEFT -->
+    <div class="left-box">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" class="logo" alt="FitHub logo">
+      <h2>Create Your Account</h2>
+      <p class="subtitle">Select your account type to continue</p>
+
+      <div class="account-types" role="tablist" aria-label="Account types">
+        <a href="{{ url_for('signup') }}">
+          <button class="type-btn active">Buyer</button>
+        </a>
+
+        <a href="{{ url_for('signup_sellers') }}">
+          <button class="type-btn">Seller</button>
+        </a>
+
+        <a href="{{ url_for('signup_rider') }}">
+          <button class="type-btn" >Rider</button>
+        </a>
+      </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div style="color:red; text-align:center;">
+          {% for msg in messages %}
+            <p>{{ msg }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+      <form method="POST" action="/signup" enctype="multipart/form-data" id="mainForm">
+        <input type="hidden" name="account_type" id="account_type" value="buyer">
+
+        <!-- BUYER inputs (wrapped so we can hide/show) -->
+        <div id="buyer-inputs">
+          <input type="text" name="username" placeholder="Username" required>
+          <input type="email" name="email" placeholder="Email" required>
+          <div class="password-wrapper">
+              <input type="password" name="password" id="password" placeholder="Password" required>
+              <img src="/static/hide.png" class="eye-toggle" onclick="togglePassword('password', this)">
+          </div>
+
+          <div class="password-wrapper">
+              <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+              <img src="/static/hide.png" class="eye-toggle" onclick="togglePassword('confirm_password', this)">
+          </div>
+        </div>
+        <div id="special-inputs"></div>
+        <!-- special-inputs will be injected for seller/rider -->
+    
+
+      <div class="terms">
+      <div class="terms-label">
+          <input type="checkbox" id="agreeCheck" required>
+          <span>I agree to the</span>
+          <a href="{{ url_for('terms') }}" target="_blank" class="highlight">Terms & Conditions</a> and 
+          <a href="{{ url_for('terms') }}#privacy-policy" target="_blank" class="highlight">Privacy Policy</a>
+      </div>
+      </div>
+
+        <div id="msgBox" style="color:red; text-align:center; margin-bottom:10px; font-size:14px;"></div>
+        <button class="btn-login" type="submit" onclick="copyDataBeforeSubmit()">Create Account</button>
+      </form>
+
+      <!-- Social signups shown only for Buyer -->
+      <div class="social-box" id="socialBox" aria-hidden="true">
+        <p style="margin-top:12px;color:#aaa;text-align:center">Or sign up using</p>
+
+        <div class="social-row">
+          <button class="social-btn facebook">
+            <img src="{{ url_for('static', filename='facebook.png') }}" alt="Facebook" style="width:18px;height:18px;margin-right:8px"> Facebook
+          </button>
+          <button class="social-btn google" onclick="window.location.href='/google_login'">
+            <img src="{{ url_for('static', filename='gogle.png') }}" alt="Google" style="width:18px;height:18px;margin-right:8px"> Google
+          </button>
+        </div>
+      </div>
+
+      <div class="signup-container">Already have an account? <a href="{{ url_for('login') }}">Login</a></div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-box" aria-hidden="true">
+      <img src="{{ url_for('static', filename='fitness_pic_1.jpeg') }}" class="right-img" alt="Promo Image">
+      <div class="overlay"></div>
+      <div class="tagline">
+        <h1>Fuel Your Fitness Journey</h1>
+        <p>Shop. Train. Perform. Repeat.</p>
+      </div>
+    </div>
+
+    <!-- optional slide panel (kept for compatibility) -->
+    <div class="slide-panel" id="slidePanel" aria-hidden="true">
+      <h3 id="panelTitle">Requirements</h3>
+      <div id="panelContent"></div>
+    </div>
+
+  </div>
+
+
+<script>
+function togglePassword(fieldId, img) {
+    const field = document.getElementById(fieldId);
+
+    if (field.type === "password") {
+        field.type = "text";
+        img.src = "/static/view.png"; // image when visible
+    } else {
+        field.type = "password";
+        img.src = "/static/hide.png"; // image when hidden
+    }
+}
+</script>
+<script>
+document.getElementById("mainForm").addEventListener("submit", function(e) {
+    const email = document.querySelector('[name="email"]').value.trim();
+    const password = document.querySelector('[name="password"]').value;
+    const confirm_password = document.querySelector('[name="confirm_password"]').value;
+    const msgBox = document.getElementById("msgBox");
+
+    msgBox.innerHTML = ""; // Clear previous messages
+
+    // Password length rule
+    if (password.length < 8) {
+        e.preventDefault();
+        msgBox.innerHTML = "Password must be at least 8 characters.";
+        return;
+    }
+
+    // Passwords must match
+    if (password !== confirm_password) {
+        e.preventDefault();
+        msgBox.innerHTML = "Passwords do not match.";
+        return;
+    }
+});
+</script>
+
+
+<script>
+  const agreeCheck = document.getElementById("agreeCheck");
+  const termsModal = document.getElementById("termsModal");
+  const privacyModal = document.getElementById("privacyModal");
+  const termsLink = document.getElementById("termsLink");
+  const privacyLink = document.getElementById("privacyLink");
+  const termsTextModal = document.getElementById("termsTextModal");
+  const privacyTextModal = document.getElementById("privacyTextModal");
+  const accountType = document.getElementById("account_type");
+
+  function showModal(modal){ modal.style.display="flex"; }
+  function closeModal(id){ document.getElementById(id).style.display="none"; }
+
+  document.querySelectorAll('.closeModal').forEach(btn=>{
+    btn.addEventListener('click',()=>closeModal(btn.dataset.close));
+  });
+
+  const content={
+    buyer:{
+      terms:`Buy products responsibly. No fraud, abuse, or chargebacks.`,
+      privacy:`We only store data needed for orders and never sell it.`
+    },
+    seller:{
+      terms:`Provide real products, deliver on time. Fraud leads to suspension.`,
+      privacy:`Business data is secure and used only for analytics or security.`
+    },
+    rider:{
+      terms:`Deliver safely and responsibly. Tampering leads to termination.`,
+      privacy:`Delivery logs and GPS are stored to verify orders and payouts.`
+    }
+  };
+
+  termsLink.addEventListener("click",(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    termsTextModal.textContent = content[accountType.value].terms;
+    showModal(termsModal);
+  });
+
+  privacyLink.addEventListener("click",(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    privacyTextModal.textContent = content[accountType.value].privacy;
+    showModal(privacyModal);
+  });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings - Driver Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='driver_earnings.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHubExpress</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('driver_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('driver_deliveries') }}">My Deliveries</a></li>
+        <li class="active"><a href="{{ url_for('driver_earnings') }}">Earnings</a></li>
+        <li><a href="{{ url_for('driver_performance') }}">Performance</a></li>
+        <li><a href="{{ url_for('driver_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('driver_settings') }}">Settings</a></li>
+        <li><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="page-title">Earnings</div>
+      <div class="profile">
+        <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="Driver Profile">
+        <span>Driver Name:</span><span class="user-email">{{ session['first_name'] }}</span>
+      </div>
+    </header>
+
+    <!-- Earnings Summary -->
+    <section class="earnings-summary">
+      <div class="card total">
+        <h3>Total Earnings</h3>
+        <p class="amount">₱{{ total_earnings }}</p>
+        <span class="sub">Overall Total</span>
+      </div>
+      <div class="card monthly">
+        <h3>This Month</h3>
+        <p class="amount">₱{{ monthly_earnings }}</p>
+        <span class="sub">October 2025</span>
+      </div>
+      <div class="card today">
+        <h3>Today</h3>
+        <p class="amount">₱{{ today_earnings }}</p>
+        <span class="sub">{{ today_deliveries }} Completed Deliveries</span>
+      </div>
+    </section>
+
+    <!-- Earnings Table -->
+    <section class="earnings-history">
+      <h2>Earnings History</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Payment Type</th>
+            <th>Status</th>
+            <th>Earnings</th>
+          </tr>
+        </thead>
+          <tbody>
+            {% for h in earnings_history %}
+            <tr> 
+              <td>{{ h.delivered_at.strftime('%b %d, %Y') }}</td>
+              <td>#ORD-{{ h.order_id }}</td>
+              <td>{{ h.full_name }}</td>
+              <td>{{ h.payment_method }}</td>
+              <td><span class="status completed">Delivered</span></td>
+              <td>₱{{ h.earning }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+
+      </table>
+    </section>
+
+
+    
+<canvas id="earningsChart" style="width: 100%; max-height: 350px; margin-top: 100px;"></canvas>
+
+  </main>
+
+  <!-- Sticky Footer -->
+
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const earningsData = JSON.parse('{{ earnings_by_day | tojson }}');
+    const labels = Object.keys(earningsData);
+    const values = Object.values(earningsData);
+
+    new Chart(document.getElementById("earningsChart"), {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Daily Earnings",
+                data: values,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
+            }]
+        }
+    });
+</script>

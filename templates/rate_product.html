@@ -1,0 +1,12 @@
+<h2>Rate {{ item.product_name }}</h2>
+<form method="POST">
+    <label>Rating (1-5):
+        <input type="number" name="rating" min="1" max="5" required>
+    </label>
+    <br>
+    <label>Review:
+        <textarea name="review"></textarea>
+    </label>
+    <br>
+    <button type="submit">Submit</button>
+</form>

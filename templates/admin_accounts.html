@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Management - Admin Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin_accounts.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <style>
+    .status.active { color: green; }
+    .status.pending { color: orange; }
+    .status.rejected { color: red; }
+    .status.unknown { color: gray; }
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: flex-start; /* align to top for scroll */
+    overflow-y: auto;        /* allow scrolling */
+    padding: 50px 0;         /* spacing top & bottom */
+    z-index: 1000;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 95%;            /* wider for big images */
+    max-width: 1000px;     /* allow more space for content */
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    max-height: 90vh;      /* limit height */
+    overflow-y: auto;      /* scroll if content too tall */
+}
+
+    .modal h2 { margin-bottom: 15px; }
+    .modal-section { margin-bottom: 15px; }
+    .modal-section h3 { margin-bottom: 8px; color: #ff4c29; }
+    .modal-section p { margin: 4px 0; }
+    .close-btn {
+        display:block;
+        width:100%;
+        padding: 12px;
+        background:#ff4c29;
+        color:#fff;
+        border:none;
+        border-radius: 8px;
+        cursor:pointer;
+        font-weight:600;
+    }
+    .close-btn:hover { background:#e04323; }
+.modal-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;               /* space between images */
+    justify-content: center;  /* center images horizontally */
+}
+
+.modal-images p {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* center images and captions inside <p> */
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.modal-images img {
+    width: 500px;   /* image size */
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    /* remove flex properties from here */
+}
+
+  .approve, .reject, .suspend {
+    padding: 10px 20px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+}
+
+.approve { background: #28a745; } /* green */
+.reject { background: #dc3545; }  /* red, same style as approve */
+.suspend { background: #ff9800; } /* orange */
+.approve:hover { background: #218838; }
+.reject:hover { background: #c82333; }
+.suspend:hover { background: #e68a00; }
+
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHub</h2>
+      <p class="role">Admin Panel</p>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+        <li class="active"><a href="{{ url_for('admin_accounts') }}">Account Management</a></li>
+        <li><a href="{{ url_for('admin_categories') }}">Categories Management</a></li>
+        <li><a href="{{ url_for('admin_products_verification') }}">Products Verification</a></li>
+        <li><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+        <li><a href="{{ url_for('admin_reports') }}">Reports</a></li>
+        <li><a href="{{ url_for('login_admin') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header>
+      <h1>Account Management</h1>
+      <p>Manage all user accounts: Sellers, Buyers, and Drivers.</p>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="openTab('sellers')">Sellers</button>
+      <button class="tab-btn" onclick="openTab('buyers')">Buyers</button>
+      <button class="tab-btn" onclick="openTab('drivers')">Drivers</button>
+    </div>
+
+    <!-- Sellers Section -->
+    <section id="sellers" class="tab-content active">
+      <h2>Sellers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Seller Name</th>
+            <th>Shop Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sellers %}
+          <tr>
+            <td>{{ s.seller_id }}</td>
+            <td>{{ s.first_name }} {{ s.last_name }}</td>
+            <td>{{ s.business_name }}</td>
+            <td>{{ s.email }}</td>
+            <td>
+              {% if s.verified == "approved" %}<span class="status active">Approved</span>
+              {% elif s.verified == "pending" %}<span class="status pending">Pending</span>
+              {% elif s.verified == "rejected" %}<span class="status rejected">Rejected</span>
+              {% elif s.verified == "disabled" %}<span class="status rejected">Disabled</span>
+              {% else %}<span class="status unknown">Unknown</span>{% endif %}
+            </td>
+            <td>
+              <button class="view" onclick='openViewModal(JSON.parse(`{{ s|tojson | safe }}`), "seller")'>View</button>
+              <button class="delete" onclick="deleteAccount('seller', '{{ s.seller_id }}')">Delete</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Buyers Section -->
+    <section id="buyers" class="tab-content">
+      <h2>Buyers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Buyer Name</th>
+            <th>Email</th>
+            <th>Total Orders</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in buyers %}
+          <tr>
+            <td>{{ b.user_id }}</td>
+            <td>{{ b.first_name }} {{ b.last_name }}</td>
+            <td>{{ b.email }}</td>
+            <td>{{ b.total_orders }}</td>
+            <td>
+              {% if b.verified == "approved" %}<span class="status active">Approved</span>
+              {% elif b.verified == "pending" %}<span class="status pending">Pending</span>
+              {% elif b.verified == "rejected" %}<span class="status rejected">Rejected</span>
+              {% elif b.verified == "disabled" %}<span class="status rejected">Disabled</span>
+              {% else %}<span class="status unknown">Unknown</span>{% endif %}
+            </td>
+            <td>
+              <button class="view" onclick='openViewModal(JSON.parse(`{{ b|tojson | safe }}`), "buyer")'>View</button>
+              <button class="delete" onclick="deleteAccount('buyer', '{{ b.user_id }}')">Delete</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Drivers Section -->
+    <section id="drivers" class="tab-content">
+      <h2>Drivers</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Driver Name</th>
+            <th>Email</th>
+            <th>Deliveries</th>
+            <th>Rating</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in drivers %}
+          <tr>
+            <td>{{ d.rider_id }}</td>
+            <td>{{ d.first_name }} {{ d.last_name }}</td>
+            <td>{{ d.email }}</td>
+            <td>{{ d.deliveries }}</td>
+            <td>{% if d.rating %}{{ d.rating }} ★{% else %}No rating{% endif %}</td>
+            <td>
+              {% if d.verified == "approved" %}<span class="status active">Approved</span>
+              {% elif d.verified == "pending" %}<span class="status pending">Pending</span>
+              {% elif d.verified == "rejected" %}<span class="status rejected">Rejected</span>
+              {% elif d.verified == "disabled" %}<span class="status rejected">Disabled</span>
+              {% else %}<span class="status unknown">Unknown</span>{% endif %}
+            </td>
+            <td>
+              <button class="view" onclick='openViewModal(JSON.parse(`{{ d|tojson | safe }}`), "rider")'>View</button>
+              <button class="delete" onclick="deleteAccount('rider', '{{ d.rider_id }}')">Delete</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- MODAL -->
+  <div id="accountModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle"></h2>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3>Personal Info</h3>
+          <p><strong>ID:</strong> <span id="modalID"></span></p>
+          <p><strong>Name:</strong> <span id="modalName"></span></p>
+          <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+          <p><strong>Mobile:</strong> <span id="modalMobile"></span></p>
+          <p><strong>Role:</strong> <span id="modalRole"></span></p>
+          <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+        </div>
+        <div class="modal-section" id="modalAddressSection">
+          <h3>Address</h3>
+          <p id="modalAddress"></p>
+        </div>
+        <div class="modal-section" id="modalBusinessSection">
+          <h3>Business Info</h3>
+          <p><strong>Shop Name:</strong> <span id="modalShopName"></span></p>
+          <p><strong>Business Type:</strong> <span id="modalBusinessType"></span></p>
+          <p><strong>Operating Hours:</strong> <span id="modalOperatingHours"></span></p>
+        </div>
+        <div class="modal-section" id="modalDocsSection">
+          <h3>Documents</h3>
+            <div class="modal-images">
+              <p><strong>Store Logo</strong><img id="modalStoreLogo"></p>
+              <p><strong>ID File</strong><img id="modalIDFile"></p>
+              <p><strong>Permit File</strong><img id="modalPermitFile"></p>
+            </div>
+        </div>
+        <div class="modal-section" id="modalVehicleSection">
+          <h3>Vehicle Info</h3>
+          <p><strong>Vehicle Type:</strong> <span id="modalVehicleType"></span></p>
+          <p><strong>Plate:</strong> <span id="modalPlate"></span></p>
+            <div class="modal-images">
+              <p><strong>Valid ID</strong><img id="modalValidID"></p>
+              <p><strong>License</strong><img id="modalLicense"></p>
+              <p><strong>OR/CR</strong><img id="modalORCR"></p>
+            </div>
+
+        </div>
+      </div>
+      <div id="modalActions" style="margin-top:20px;"></div>
+      <button onclick="closeModal()" class="close-btn">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function openTab(tabName) {
+      const tabs = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-btn');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+function openViewModal(data, type) {
+    const modal = document.getElementById("accountModal");
+    document.getElementById("modalTitle").innerText = type.toUpperCase() + " DETAILS";
+
+    // --- Map common fields ---
+    let id, fullName;
+    if(type === "seller") {
+        id = data.seller_id;
+        fullName = `${data.first_name} ${data.last_name}`;
+    } else if(type === "buyer") {
+        id = data.user_id;
+        fullName = `${data.first_name} ${data.last_name}`;
+    } else if(type === "rider") {
+        id = data.rider_id;
+        fullName = `${data.first_name} ${data.last_name}`;
+    }
+
+    document.getElementById("modalID").innerText = id || '';
+    document.getElementById("modalName").innerText = fullName || '';
+    document.getElementById("modalEmail").innerText = data.email || '';
+    document.getElementById("modalMobile").innerText = data.mobile || '';
+    document.getElementById("modalRole").innerText = type;
+    document.getElementById("modalStatus").innerText = data.verified || '';
+
+    // --- Address ---
+    if(data.street) {
+        document.getElementById("modalAddressSection").style.display = "block";
+        document.getElementById("modalAddress").innerText = 
+            `${data.street}, ${data.barangay}, ${data.city}, ${data.province}, ${data.postal || ''}`;
+    } else {
+        document.getElementById("modalAddressSection").style.display = "none";
+    }
+
+    // --- Seller-specific business info ---
+    if(type === "seller") {
+        document.getElementById("modalBusinessSection").style.display = "block";
+        document.getElementById("modalShopName").innerText = data.business_name || '';
+        document.getElementById("modalBusinessType").innerText = data.business_type || '';
+        document.getElementById("modalOperatingHours").innerText = data.operating_hours || '';
+        document.getElementById("modalDocsSection").style.display = "block";
+        document.getElementById("modalStoreLogo").src = `/static/uploads/sellers/${data.store_logo || ''}`;
+        document.getElementById("modalIDFile").src = `/static/uploads/sellers/${data.id_file || ''}`;
+        document.getElementById("modalPermitFile").src = `/static/uploads/sellers/${data.permit_file || ''}`;
+    } else {
+        document.getElementById("modalBusinessSection").style.display = "none";
+        document.getElementById("modalDocsSection").style.display = "none";
+    }
+
+    // --- Rider-specific vehicle info ---
+    if(type === "rider") {
+        document.getElementById("modalVehicleSection").style.display = "block";
+        document.getElementById("modalVehicleType").innerText = data.vehicle_type || '';
+        document.getElementById("modalPlate").innerText = data.plate || '';
+        document.getElementById("modalValidID").src = `/static/uploads/sellers/${data.valid_id || ''}`;
+        document.getElementById("modalLicense").src = `/static/uploads/sellers/${data.license || ''}`;
+        document.getElementById("modalORCR").src = `/static/uploads/sellers/${data.orcr || ''}`;
+    } else {
+        document.getElementById("modalVehicleSection").style.display = "none";
+    }
+
+    // --- Action buttons ---
+    let actions = "";
+    if(data.verified === "pending") {
+        actions = `<button onclick="updateStatus('${type}', ${id}, 'approved')" class="approve">Approve</button>
+                   <button onclick="updateStatus('${type}', ${id}, 'rejected')" class="reject">Reject</button>`;
+    } else if(data.verified === "approved") {
+        actions = `<button onclick="updateStatus('${type}', ${id}, 'disabled')" class="suspend">Disable</button>`;
+    } else if(data.verified === "rejected") {
+        actions = `<button onclick="updateStatus('${type}', ${id}, 'approved')" class="approve">Approve</button>`;
+    } else if(data.verified === "disabled") {
+        actions = `<button onclick="updateStatus('${type}', ${id}, 'approved')" class="approve">Enable</button>`;
+    }
+    document.getElementById("modalActions").innerHTML = actions;
+
+    modal.style.display = "flex";
+}
+
+    function closeModal() {
+      document.getElementById("accountModal").style.display = "none";
+    }
+
+    function updateStatus(type, id, status) {
+      fetch("/update_verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `type=${type}&id=${id}&status=${status}`
+      }).then(res => res.json()).then(data => { location.reload(); });
+    }
+
+    function deleteAccount(type, id) {
+      if(!confirm("Are you sure you want to delete this account? All related data will be removed.")) return;
+      fetch("/delete_account", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `type=${type}&id=${id}`
+      }).then(res => res.json()).then(data => { alert(data.message); location.reload(); });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorites</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='view_products.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='favorites.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+      .header-actions a img {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+        margin-right: 5px;
+        font-weight: 100;
+      }
+
+      .logout-btn {
+        color: rgb(255, 255, 255);
+        margin-left: 10px;
+        text-decoration: none;
+
+      }
+      .logout-btn:hover {
+        text-decoration: underline;
+      }
+      .user-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .profile-photo {
+        width: 25px !important;
+        height: 25px !important;
+        border-radius: 50%;
+        object-fit: cover;
+        background: none !important;
+        filter: none !important;
+        opacity: 1 !important;
+        display: inline-block;
+      }
+
+      .user-btn {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;                  /* Adds space between elements */
+        cursor: pointer;
+      }
+
+      .user-email {
+        font-size: 12px;
+        color: white;
+      }
+
+      .user-btn:hover .user-email,
+      .user-btn:hover .arrow {
+        color: #ffcc00; /* Optional highlight color */
+      }
+
+
+      .user-btn img {
+        width: 200px;
+        height: 200px;
+        margin-right: -1px;
+        margin-left: 5px;
+      }
+
+      .user-btn .arrow {
+        margin-left: 5px;
+        font-size: 8px;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        min-width: 160px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        z-index: 10;
+        right: 0;
+      }
+
+      .dropdown-content a {
+        display: block;
+        padding: 10px 14px;
+        color: #000000;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+
+      .dropdown-content a:hover {
+        background-color: #9d9d9d;
+        color: #ffffff;
+      }
+
+      .user-dropdown:hover .dropdown-content {
+        display: block;
+      }
+      .profile-photo {
+        width: clamp(25px, 3vw, 50px);  /* Minimum 25px, scales up to 50px */
+        height: clamp(25px, 3vw, 50px);
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+    </style>
+</head>
+<body>
+  <header>
+    <a href="{{ url_for('homepage') }}" class="logo">FitHub</a>
+
+<div class="search-bar">
+  <input type="text" placeholder="Search for products...">
+  <button type="submit">
+    <img src="{{ url_for('static', filename='magnifier.png') }}" alt="Search">
+  </button>
+</div>
+    <!-- Right actions -->
+    <div class="header-actions">
+      <a href="{{ url_for('signup') }}" target="_blank" rel="noopener noreferrer">
+        <img src="/static/store.png" alt="Sell"> Start Selling
+      </a>
+      <a href="{{ url_for('add_to_cart') }}"><img src="/static/shopping-cart.png" alt="Cart"> Cart</a>
+      <a href="{{ url_for('favorites') }}"><img src="/static/heart.png" alt="Favorites"> Favorites</a>
+        {% if session.get('loggedin') %}
+        <div class="user-dropdown">
+          <button class="user-btn">
+          <img 
+            src="{{ session['photo']}}" 
+            alt="Profile Photo" 
+            class="profile-photo"
+          >
+          <span class="user-email">{{ session['email'] }}</span>
+          <span class="arrow">▼</span>
+        </button>
+          <div class="dropdown-content">
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('purchase') }}">My Purchase</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+        {% else %}
+          <a href="/login"><img src="/static/enter (1).png" alt="User"> Login / Sign Up</a>
+        {% endif %}
+
+    </div>
+  </header>
+<div class="categories-bar">
+  <ul>
+    <button class="scroll-left">‹</button>
+    <li class="dropdown"><a href="#" data-target="newin">Categories</a></li>
+    <li class="dropdown"><a href="#" data-target="newin">New In</a></li>
+    <li class="dropdown"><a href="#" data-target="sale">Sale</a></li>
+    <li class="dropdown"><a href="#" data-target="sports">Sports and Outdoors</a></li>
+    <li class="dropdown"><a href="#" data-target="fitness">Fitness Equipment</a></li>
+    <li class="dropdown"><a href="#" data-target="camp">Camping & Hiking Gear</a></li>
+    <li class="dropdown"><a href="#" data-target="apprel">Sports Apparel</a></li>
+    <li class="dropdown"><a href="#" data-target="cycling">Cycling & Bikes</a></li>
+    <li class="dropdown"><a href="#" data-target="water">Water Sports</a></li>
+    <li class="dropdown"><a href="#" data-target="team">Team Sports Equipment</a></li>
+    <button class="scroll-right">›</button>
+  </ul>
+
+  <!-- Shared Mega Dropdown -->
+  <div class="mega-dropdown">
+    <!-- Sidebar (column 1) -->
+    <div class="mega-sidebar">
+      <a href="#" data-target="newin" >Categories</a>
+      <a href="#" data-target="newin">New In</a>
+      <a href="#" data-target="sale">Sale</a>
+      <a href="#" data-target="sports">Sports and Outdoors</a>
+      <a href="#" data-target="fitness">Fitness Equipment</a>
+      <a href="#" data-target="camp">Camping & Hiking Gear</a>
+      <a href="#" data-target="apprel">Sports Apparel</a>
+      <a href="#" data-target="cycling">Cycling & Bikes</a>
+      <a href="#" data-target="water">Water Sports</a>
+      <a href="#" data-target="team">Team Sports Equipment</a>
+    </div>
+
+    <!-- Dynamic Content (columns 2 + 3) -->
+    <div class="mega-content">
+      <!-- Example: Kids -->
+<div class="mega-panel" id="newin">
+  <!-- 2nd column -->
+  <div class="col-2">
+    <div class="circle-item">
+      <img src="viewall.jpg" alt="">
+      <p>View All</p>
+    </div>
+    <div class="circle-item">
+      <img src="clothes.jpg" alt="">
+      <p>Clothes</p>
+    </div>
+    <div class="circle-item">
+      <img src="toys.jpg" alt="">
+      <p>Toys</p>
+    </div>
+  </div>
+
+  <!-- 3rd column -->
+  <div class="col-3">
+    <div class="circle-item"><img src="viewall.jpg"><p>View All</p></div>
+    <div class="circle-item"><img src="girltoy.jpg"><p>Girl’s Toys</p></div>
+    <div class="circle-item"><img src="boytoy.jpg"><p>Boy’s Toys</p></div>
+    <div class="circle-item"><img src="makeup.jpg"><p>Make-up</p></div>
+    <div class="circle-item"><img src="doll.jpg"><p>Dolls</p></div>
+    <div class="circle-item"><img src="cars.jpg"><p>Cars</p></div>
+    <div class="circle-item"><img src="cars.jpg"><p>Hey</p></div>
+  </div>
+</div>
+
+
+      <!-- Example: Sale -->
+      <div class="mega-panel" id="sale">
+        <div class="circle-grid">
+          <div class="circle-item"><img src="discount.jpg"><p>50% Off</p></div>
+          <div class="circle-item"><img src="flash.jpg"><p>Flash Sale</p></div>
+          <div class="circle-item"><img src="bogo.jpg"><p>Buy 1 Get 1</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- MAIN CONTENT -->
+  <main class="favorites-container">
+    <h1>My Favorites ❤️</h1>
+
+    <div class="favorites-grid">
+      <!-- Sample Product Card -->
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Wireless Fitness Earbuds</h3>
+          <p class="price">₱1,299</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Smart Sports Watch</h3>
+          <p class="price">₱2,499</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Yoga Mat Premium Grip</h3>
+          <p class="price">₱899</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Yoga Mat Premium Grip</h3>
+          <p class="price">₱899</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Yoga Mat Premium Grip</h3>
+          <p class="price">₱899</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Yoga Mat Premium Grip</h3>
+          <p class="price">₱899</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="favorite-card">
+        <img src="static/images/dumbbell.jpg" alt="Product">
+        <div class="fav-info">
+          <h3>Yoga Mat Premium Grip</h3>
+          <p class="price">₱899</p>
+          <div class="fav-actions">
+            <button class="view-btn">View Product</button>
+            <button class="remove-btn">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State (only show when no favorites) -->
+    <div class="empty-favorites">
+      <img src="{{ url_for('static', filename='empty_heart.png') }}" alt="Empty Heart">
+      <p>No favorites yet.</p>
+      <a href="{{ url_for('homepage') }}" class="browse-btn">Browse Products</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 FitHub. All Rights Reserved.</p>
+  </footer>
+</body>
+</html>
+<script>
+(function() {
+  const body = document.documentElement; // to set CSS vars
+  const headerEl = document.querySelector('header');
+  const catEl = document.querySelector('.categories-bar');
+  const wrapper = document.body; // we add class on body to collapse/restore
+  let lastScrollTop = 0;
+  let ticking = false;
+
+  if (!headerEl || !catEl) return;
+
+  // set initial CSS vars and body spacing
+  function updateHeights() {
+    const h = headerEl.getBoundingClientRect().height || 64;
+    const c = catEl.getBoundingClientRect().height || 56;
+    body.style.setProperty('--header-height', `${h}px`);
+    body.style.setProperty('--categories-height', `${c}px`);
+    // add padding to body content to avoid overlap
+    // create or apply class on body (so site content gets spacing)
+    document.body.classList.add('site-top-spacing');
+  }
+
+  // Run once and on resize (header/cat may change size)
+  updateHeights();
+  window.addEventListener('resize', () => {
+    updateHeights();
+  });
+
+  // scroll handler — throttle with requestAnimationFrame
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        // small threshold to avoid toggle on micro-scrolls
+        const delta = scrollTop - lastScrollTop;
+
+        if (Math.abs(delta) > 5) {
+          if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // scrolling down -> collapse
+            document.body.classList.add('header-collapsed');
+          } else {
+            // scrolling up -> show
+            document.body.classList.remove('header-collapsed');
+          }
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // If you want categories to stay visible while header hides, use:
+  // document.body.classList.add('header-only-mode'); and adjust CSS accordingly (I can show if needed)
+})();
+</script>
+<script>
+  document.querySelectorAll(".mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    document.getElementById(target).classList.add("active");
+  });
+});
+
+// Show mega dropdown when hovering any top nav
+document.querySelectorAll(".categories-bar ul li").forEach(item => {
+  item.addEventListener("mouseenter", () => {
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+</script>
+<script>
+document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseover", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.add("highlight");
+      }
+    });
+  });
+
+  link.addEventListener("mouseout", () => {
+    const text = link.textContent.trim();
+    document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(other => {
+      if (other.textContent.trim() === text) {
+        other.classList.remove("highlight");
+      }
+    });
+  });
+});
+
+</script>
+<script>
+  document.querySelectorAll(".categories-bar a, .mega-sidebar a").forEach(link => {
+  link.addEventListener("mouseenter", function() {
+    const target = this.getAttribute("data-target");
+    if (!target) return; // skip if no target
+    document.querySelectorAll(".mega-panel").forEach(p => p.classList.remove("active"));
+    const panel = document.getElementById(target);
+    if (panel) panel.classList.add("active");
+    
+    // show dropdown when hovering top bar
+    document.querySelector(".mega-dropdown").style.display = "flex";
+  });
+});
+
+// hide when mouse leaves whole dropdown + bar
+document.querySelector(".categories-bar").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+document.querySelector(".mega-dropdown").addEventListener("mouseleave", () => {
+  document.querySelector(".mega-dropdown").style.display = "none";
+});
+
+
+const catBar = document.querySelector(".categories-bar ul");
+const leftBtn = document.querySelector(".scroll-left");
+const rightBtn = document.querySelector(".scroll-right");
+
+function updateArrows() {
+  const scrollLeft = catBar.scrollLeft;
+  const maxScroll = catBar.scrollWidth - catBar.clientWidth;
+
+  // Show left arrow only if content scrolled right
+  leftBtn.style.display = scrollLeft > 0 ? "block" : "none";
+
+  // Show right arrow only if content is overflowing
+  rightBtn.style.display = scrollLeft < maxScroll ? "block" : "none";
+}
+
+// Scroll behavior
+leftBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: -150, behavior: "smooth" });
+});
+rightBtn.addEventListener("click", () => {
+  catBar.scrollBy({ left: 150, behavior: "smooth" });
+});
+
+// Update arrows on load, resize, and scroll
+window.addEventListener("load", updateArrows);
+window.addEventListener("resize", updateArrows);
+catBar.addEventListener("scroll", updateArrows);
+
+</script>
+<script>
+  const mainImage = document.getElementById('main-product-image');
+  const thumbs = document.querySelectorAll('.thumb');
+
+  thumbs.forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      thumbs.forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+      mainImage.src = thumb.src;
+    });
+  });
+
+  
+</script>
+<script>
+  const thumbRow = document.querySelector('.thumbnail-row');
+  const leftThumbArrow = document.querySelector('.left-thumb-arrow');
+  const rightThumbArrow = document.querySelector('.right-thumb-arrow');
+
+  leftThumbArrow.addEventListener('click', () => {
+    thumbRow.scrollBy({ left: -80, behavior: 'smooth' });
+  });
+
+  rightThumbArrow.addEventListener('click', () => {
+    thumbRow.scrollBy({ left: 80, behavior: 'smooth' });
+  });
+</script>

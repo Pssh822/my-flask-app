@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - Driver Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='driver_messages.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+      <h2>FitHubExpress</h2>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('driver_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('driver_deliveries') }}">My Deliveries</a></li>
+        <li><a href="{{ url_for('driver_earnings') }}">Earnings</a></li>
+        <li><a href="{{ url_for('driver_performance') }}">Performance</a></li>
+        <li class="active"><a href="{{ url_for('driver_messages') }}">Messages</a></li>
+        <li><a href="{{ url_for('driver_settings') }}">Settings</a></li>
+        <li><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="page-title">Message</div>
+      <div class="profile">
+        <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="Driver Profile">
+        <span>Driver Name:</span><span class="user-email">{{ session['first_name'] }}</span>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <!-- Chat List -->
+      <div class="chat-list">
+        <div class="chat-item active">
+          <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="User">
+          <div class="chat-info">
+            <h4>Customer A</h4>
+            <p>Can you confirm my order delivery time?</p>
+          </div>
+          <span class="chat-time">10:30 AM</span>
+        </div>
+        <div class="chat-item">
+          <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="User">
+          <div class="chat-info">
+            <h4>Customer B</h4>
+            <p>Thank you for the fast delivery!</p>
+          </div>
+          <span class="chat-time">Yesterday</span>
+        </div>
+        <div class="chat-item">
+          <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="User">
+          <div class="chat-info">
+            <h4>Admin Support</h4>
+            <p>Please update your delivery status.</p>
+          </div>
+          <span class="chat-time">2d ago</span>
+        </div>
+      </div>
+
+      <!-- Chat Box -->
+      <div class="chat-box">
+        <div class="chat-header">
+          <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="User">
+          <h3>Customer A</h3>
+        </div>
+
+        <div class="chat-messages">
+          <div class="message received">
+            <p>Hi, can you confirm my order delivery time?</p>
+            <span>10:29 AM</span>
+          </div>
+          <div class="message sent">
+            <p>Yes! I’ll deliver it around 11:30 AM.</p>
+            <span>10:31 AM</span>
+          </div>
+          <div class="message received">
+            <p>Perfect, thank you!</p>
+            <span>10:32 AM</span>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input type="text" placeholder="Type a message...">
+          <button>Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

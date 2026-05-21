@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login | FitHub</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+        body{
+            background: url("{{ url_for('static', filename='bg_background.png') }}") no-repeat center center fixed;
+            background-size: cover;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            height:100vh;
+            color:#fff;
+        }
+
+        .container{
+            width:100%;
+            max-width:1000px;
+            height:650px;
+            display:flex;
+            background:rgba(20,20,20,0.85);
+            border-radius:18px;
+            box-shadow:0 0 15px rgba(255,76,41,0.3);
+            overflow:hidden;
+        }
+
+        /* LEFT SECTION */
+        .left-box{
+            width:50%;
+            padding:45px;
+        }
+        .logo{width:80px;display:block;margin:auto}
+        h2{text-align:center;margin-top:12px;font-weight:600}
+        .subtitle{text-align:center;color:#bbb;font-size:13px;margin-bottom:20px}
+
+        .account-types{display:flex;gap:10px;margin:10px 0}
+        .type-btn{
+            flex:1;padding:10px;background:#222;border:1px solid #444;border-radius:8px;
+            cursor:pointer;color:#fff;transition:0.2s ease;font-size:14px;
+        }
+        .type-btn.active{background:#ff4c29;border-color:#ff4c29}
+
+        input{
+            width:100%;padding:10px;margin-top:15px;background:#1e1e1e;border:1px solid #444;border-radius:8px;color:white;
+        }
+        input:focus{border-color:#ff4c29;outline:none}
+
+        .btn-login{
+            margin-top:18px;width:100%;padding:12px;background:#ff4c29;border:none;
+            border-radius:8px;color:#fff;font-weight:600;font-size:14px;cursor:pointer;transition:0.2s;
+        }
+        .btn-login:hover{transform: scale(1.03)}
+
+        /* SOCIAL LOGIN */
+        .social-box{margin-top:18px}
+        .social-box p{text-align:center;color:#bbb;font-size:13px;margin-bottom:8px}
+        .social-row{display:flex;gap:10px}
+        .social-btn{
+            flex:1;padding:10px;border-radius:8px;border:none;font-weight:600;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+        }
+        .facebook{background:#1877f2;color:#fff}
+        .google{background:#fff;color:#111}
+
+        .signup-container{text-align:center;margin-top:18px;font-size:13px;color:#bbb}
+        .signup-container a{color:#ff4c29;font-weight:600;text-decoration:none}
+
+        /* RIGHT SECTION */
+        .right-box{
+            width:50%;
+            position:relative;
+        }
+        .right-img{
+            width:100%;height:100%;object-fit:cover;
+        }
+        .overlay{
+            position:absolute;bottom:0;left:0;width:100%;height:60%;
+            background:linear-gradient(to bottom, transparent, rgba(0,0,0,0.9));
+        }
+        .tagline{
+            position:absolute;bottom:40px;left:30px;
+        }
+        .tagline h1{color:#ff4c29;font-size:24px}
+        .tagline p{font-size:14px}
+        /* ALERT STYLES */
+        #alert-container {
+            margin-top: 10px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Colors */
+        .alert.error {
+            background: rgba(255, 76, 41, 0.25);
+            border: 1px solid #ff4c29;
+            color: #ffb3a5;
+        }
+
+        .alert.warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffdd8a;
+        }
+
+        .alert.success {
+            background: rgba(40, 167, 69, 0.25);
+            border: 1px solid #28a745;
+            color: #9deab8;
+        }
+
+        /* Fade Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    .password-wrapper input {
+        width: 100%;
+        padding-right: 40px;
+    }
+
+    .eye-toggle {
+        position: absolute;
+        right: 10px;
+        top: 60%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        opacity: 0.7;
+        filter: invert(50%);
+    }
+    .eye-toggle:hover {
+        opacity: 1;
+    }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="left-box">
+        <img src="{{ url_for('static', filename='logo_fithub.png') }}" class="logo">
+
+        <h2>Login Your Account</h2>
+        <p class="subtitle">Select your account type to continue</p>
+
+        <div class="account-types">
+            <button class="type-btn" onclick="selectRole('buyer', this)">Buyer</button>
+            <button class="type-btn"  onclick="selectRole('seller', this)">Seller</button>
+            <button class="type-btn" onclick="selectRole('rider', this)">Rider</button>
+        </div>
+        
+                {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="alert-container">
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+        <form method="POST" action="/login">
+            <input type="hidden" id="selected_role" name="role">
+            <input type="email" name="email" placeholder="Email Address" required>
+            <div class="password-wrapper">
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <img src="/static/hide.png" class="eye-toggle" onclick="togglePassword('password', this)">
+            </div>
+
+            <button class="btn-login" type="submit">Login</button>
+        </form>
+
+        <div class="social-box">
+            <p>Or login using</p>
+
+            <div class="social-row">
+
+                <button class="social-btn google" onclick="window.location.href='/google_login'">
+                    <img src="{{ url_for('static', filename='gogle.png') }}" width="18" height="18">
+                    Google
+                </button>
+            </div>
+        </div>
+
+        <div class="signup-container">
+            Don't have an account?
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        </div>
+    </div>
+
+    <div class="right-box">
+        <img class="right-img" src="{{ url_for('static', filename='fitness_pic_1.jpeg') }}">
+        <div class="overlay"></div>
+        <div class="tagline">
+            <h1>Fuel Your Fitness Journey</h1>
+            <p>Shop. Train. Perform. Repeat.</p>
+        </div>
+    </div>
+</div>
+<script>
+function togglePassword(fieldId, img) {
+    const field = document.getElementById(fieldId);
+
+    if (field.type === "password") {
+        field.type = "text";
+        img.src = "/static/view.png"; // image when visible
+    } else {
+        field.type = "password";
+        img.src = "/static/hide.png"; // image when hidden
+    }
+}
+</script>
+<script>
+function selectRole(role, btn) {
+    document.getElementById("selected_role").value = role;
+
+    // highlight selected button
+    document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // ----- HIDE/SHOW SOCIAL LOGIN -----
+    const socialBox = document.querySelector(".social-box");
+
+    if (role === "buyer") {
+        socialBox.style.display = "block";  // show Google login
+    } else {
+        socialBox.style.display = "none";   // hide Google login for Seller/Rider
+    }
+}
+</script>
+
+<script>
+setTimeout(() => {
+    const alerts = document.querySelectorAll(".alert");
+    alerts.forEach(a => {
+        a.style.transition = "opacity 0.5s";
+        a.style.opacity = "0";
+        setTimeout(() => a.remove(), 500);
+    });
+}, 4000);
+</script>
+</body>
+</html>

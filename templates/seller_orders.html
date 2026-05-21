@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | Seller Panel</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='seller_orders.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo_fithub.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='logo_fithub.png') }}" alt="Logo">
+        <h2>Seller Panel</h2>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li><a href="{{ url_for('seller_dashboard') }}">Dashboard</a></li>
+      <li><a href="{{ url_for('seller_products') }}">My Products</a></li>
+      <li  class="active"><a href="{{ url_for('seller_orders') }}">Orders</a></li>
+      <li><a href="{{ url_for('seller_earnings') }}">Earnings</a></li>
+      <li><a href="{{ url_for('seller_messages') }}">Messages</a></li>
+      <li><a href="{{ url_for('seller_settings') }}">Settings</a></li>
+      <li class="logout"><a href="{{ url_for('logout_seller') }}">Logout</a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+      <header class="topbar">
+        <h1>Orders</h1>
+        <a href="{{ url_for('seller_products') }}" class="add-btn">+ Add New Product</a>
+              <div style="text-align: center; margin: 20px 0;">
+                <div style="text-align: center; margin: 20px 0;">
+                    <input type="text" id="searchInput" placeholder="Search orders..." 
+                        style="padding: 8px 12px; width: 300px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; margin-right: 190px;">
+                </div>
+      </div>
+        <div class="seller-profile">
+          <img src="{{ session.get('store_logo', url_for('static', filename='uploads/sellers/default-user.jpg')) }}" alt="Profile">
+          <span>Seller Account: </span><span class="user-email">{{ session['first_name'] }}</span>
+        </div>
+      </header>
+
+<section class="orders-list" style="padding: 20px;">
+
+  {% if active_orders or delivered_orders %}
+  <table class="orders-table">
+      <thead>
+          <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Buyer</th>
+              <th>Total</th>
+              <th>Order Status</th>
+              <th>Items</th>
+              <th>Action</th>
+          </tr>
+      </thead>
+
+      <tbody>
+            {% for key, data in active_orders.items() %}
+            <tr>
+                <td>#{{ data["order_meta"]["order_id"] }}</td>
+
+                <td>{{ data["order_meta"]["created_at"] }}</td>
+
+                <td>
+                    {{ data["order_meta"]["buyer_name"] }}<br>
+                    <small>{{ data["order_meta"]["buyer_mobile"] }}</small>
+                </td>
+
+                <td>₱{{ data["order_meta"]["order_total"] }}</td>
+
+                <td>{{ data["order_meta"]["order_status"] }}</td>
+
+                <td style="text-align: left;">
+                    {% for it in data["items"] %}
+                        <div style="margin-bottom: 6px;">
+                            <img src="{{ url_for('static', filename='uploads/sellers/' ~ (it["main_image"] or 'default.jpg')) }}"
+                                style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
+
+                            <strong>{{ it["product_name"] }}</strong><br>
+                            <small>Variation: {{ it["variation"] or '-' }}</small><br>
+                            <small>Qty: {{ it["quantity"] }}</small>
+                        </div>
+                    {% endfor %}
+                </td>
+
+                <td>
+                    <a class="view-order-btn" href="#" 
+                    data-order-id="{{ data['order_meta']['order_id'] }}"
+                    style="padding:6px 12px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
+                    View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+
+      </tbody>
+  </table>
+
+  <h2 style="margin-top:40px;">Order History Deliveries</h2>
+
+<table class="orders-table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Buyer</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Full Details</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for order_id, data in delivered_orders.items() %}
+        <tr style="background:#e8f5e9;">
+            <td>#{{ data["order_meta"]["order_id"] }}</td>
+            <td>{{ data.order_meta.created_at }}</td>
+            <td>{{ data.order_meta.buyer_name }}<br>
+                <small>{{ data.order_meta.buyer_mobile }}</small>
+            </td>
+            <td>₱{{ data.order_meta.order_total }}</td>
+<td style="text-align:left;">
+    {% for it in data["items"] %}
+        <div>
+            <strong>{{ it.product_name }}</strong><br>
+
+            {% if it.item_status == 'Cancelled' %}
+                <span style="color:red;"><b>Cancelled</b></span>
+            {% elif it.item_status == 'Shipped' %}
+                <span style="color:green;"><b>Shipped</b></span>
+            {% elif it.item_status == 'Preparing' %}
+                <span style="color:orange;"><b>Preparing</b></span>
+            {% endif %}
+            <br><br>
+        </div>
+    {% endfor %}
+</td>
+
+
+<td style="text-align: left;">
+    {% for it in data["items"] %}
+        <div style="margin-bottom: 12px; border-bottom:1px solid #eee; padding-bottom:6px;">
+            <img src="{{ url_for('static', filename='uploads/sellers/' ~ (it["main_image"] or 'default.jpg')) }}"
+                 style="width:40px; height:40px; object-fit:cover; border-radius:4px; vertical-align:middle; margin-right:8px;">
+            <div style="display:inline-block; vertical-align:middle;">
+                <strong>{{ it["product_name"] }}</strong> <br>
+                Variation: <em>{{ it["variation"] or '-' }}</em> <br>
+                Qty: {{ it["quantity"] }} <br>
+                Buyer: <strong>{{ data["order_meta"]["buyer_name"] }}</strong> • <small>{{ data["order_meta"]["buyer_mobile"] }}</small>
+            </div>
+        </div>
+    {% endfor %}
+</td>
+
+            
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+
+  {% else %}
+      <p>You have no orders yet.</p>
+  {% endif %}
+
+</section>
+<!-- Modal -->
+<div id="orderModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; width:90%; max-width:600px; max-height:80%; overflow-y:auto; position:relative;">
+        <button id="closeModal" style="position:absolute; top:10px; right:10px; background:#e53935; color:#fff; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">X</button>
+        <h3>Order Details</h3>
+        <div id="acceptOrderContainer" style="margin-bottom: 10px;"></div>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+
+
+  </main>
+</div>
+
+
+</body>
+</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('orderModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeModal = document.getElementById('closeModal');
+
+    closeModal.addEventListener('click', () => modal.style.display = 'none');
+
+    document.querySelectorAll('.view-order-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const orderId = btn.dataset.orderId;
+
+            try {
+                const res = await fetch(`/seller/order/${orderId}/json`);
+                const data = await res.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+
+
+                    let html = `
+                        <p><strong>Order ID:</strong> ${data.order_meta.order_id}</p>
+                        <p><strong>Buyer:</strong> ${data.order_meta.full_name} • ${data.order_meta.mobile}</p>
+                        <p><strong>Shipping Address:</strong> ${data.shipping_address}</p>
+                        <p><strong>Total:</strong> ₱${data.order_meta.total}</p>
+                        <p><strong>Payment Method:</strong> ${data.order_meta.payment_method}</p>
+                        <p><strong>Status:</strong> ${data.order_meta.order_status}</p>
+                        <hr>
+                        <h4>Items:</h4>
+                    `;
+
+                    data.items.forEach(it => {
+                        const isCancelled = it.status === "Cancelled";
+                        const isPending = it.status === "Pending";
+                        const isAccepted = it.status === "Accepted";
+                        const isPreparing = it.status === "Preparing";
+                        const isShipped = it.status === "Shipped";
+                        const isDelivery = it.status === "Delivery";
+                        const isDelivered = it.status === "Delivered";
+
+                        // Buttons only show if status is neither Accepted, Preparing, Shipped, Delivery, or Cancelled
+                        const showButtons = !isCancelled && !(isAccepted || isPreparing || isShipped || isDelivery || isDelivered);
+
+                        // Disable the whole selector only if Shipped, Cancelled, Delivery, or Delivered
+                        const selectDisabled = isShipped || isCancelled || isDelivery || isDelivered || isPending;
+
+                        html += `
+                            <div style="display:flex; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #eee;">
+                                <img src="/static/uploads/sellers/${it.main_image || 'default.jpg'}" 
+                                    style="width:60px; height:60px; object-fit:cover; margin-right:10px; border-radius:6px;">
+                                <div style="flex:1;">
+                                    <strong>${it.product_name}</strong><br>
+                                    Variation: ${it.variation || '-'}<br>
+                                    Qty: ${it.quantity}<br>
+                                    Line Total: ₱${it.total_price}<br>
+                                    Status: <b style="color:${isCancelled ? 'red' : 'black'}">${it.status}</b>
+                                    <div style="margin-top:8px;">
+                                        <!-- Accept & Reject Buttons -->
+                                        ${showButtons ? `
+                                            <button class="accept-item-btn" data-item-id="${it.item_id}"
+                                                style="padding:5px 10px; background:#28a745; color:white; border:none; border-radius:4px;">
+                                                Accept
+                                            </button>
+                                            <button class="reject-item-btn" data-item-id="${it.item_id}"
+                                                style="padding:5px 10px; background:#dc3545; color:white; border:none; border-radius:4px; margin-left:5px;">
+                                                Reject
+                                            </button>
+                                        ` : ''}
+
+                                            <!-- Status Select -->
+                                            <select class="status-select" data-item-id="${it.item_id}" style="margin-left:10px;"
+                                                ${selectDisabled ? 'disabled' : ''}
+                                            >
+                                                <!-- Accepted -->
+                                                <option value="Accepted"
+                                                    ${isAccepted ? "selected" : ""}
+                                                    ${isPreparing || isShipped ? "disabled" : ""}
+                                                >Accepted</option>
+
+                                                <!-- Preparing -->
+                                                <option value="Preparing"
+                                                    ${isPreparing ? "selected" : ""}
+                                                    ${isShipped ? "disabled" : ""}
+                                                    ${isAccepted ? "" : isPreparing ? "" : "disabled"}
+                                                >Preparing</option>
+
+                                                <!-- Shipped -->
+                                                <option value="Shipped"
+                                                    ${isShipped ? "selected" : ""}
+                                                    ${isPreparing ? "" : "disabled"}
+                                                >Shipped</option>
+                                            </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+
+                    modalContent.innerHTML = html;
+                    modal.style.display = 'flex';
+
+
+            } catch(err) {
+                console.error(err);
+                alert('Failed to fetch order details.');
+            }
+        });
+    });
+});
+</script>
+<script>
+    document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('status-select')) {
+        const itemId = e.target.dataset.itemId;
+        const newStatus = e.target.value;
+
+        fetch('/seller/order/update_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId, status: newStatus })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Status updated!");
+            } else {
+                alert("Error updating status");
+            }
+        });
+    }
+});
+
+</script>
+<script>
+// Close modal helper
+function closeAndRefresh() {
+    const modal = document.getElementById('orderModal');
+    modal.style.display = 'none'; // close modal
+    location.reload(); // refresh page
+}
+
+// Status selector change
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('status-select')) {
+        const itemId = e.target.dataset.itemId;
+        const newStatus = e.target.value;
+
+        fetch('/seller/order/update_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId, status: newStatus })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeAndRefresh(); // close modal and refresh page
+            } else {
+                alert("Error updating status");
+            }
+        });
+    }
+});
+
+// Accept / Reject buttons
+document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("accept-item-btn")) {
+        const itemId = e.target.dataset.itemId;
+
+        fetch("/seller/order/accept_item", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ item_id: itemId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeAndRefresh(); // close modal and refresh page
+            }
+        });
+    }
+
+    if (e.target.classList.contains("reject-item-btn")) {
+        const itemId = e.target.dataset.itemId;
+
+        const reason = prompt(
+            "Reason for rejection:\n" +
+            "1. Out of stock\n" +
+            "2. Product not available\n" +
+            "3. Cannot fulfill order\n" +
+            "4. Other"
+        );
+
+        if (!reason) return;
+
+        fetch("/seller/order/reject_item", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ item_id: itemId, reason: reason })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                closeAndRefresh(); // close modal and refresh page
+            }
+        });
+    }
+});
+
+
+</script>
+<script>
+const searchInput = document.getElementById('searchInput');
+const activeTbody = document.querySelector('.orders-table tbody'); // Active orders tbody
+const historyTable = document.querySelectorAll('.orders-table')[1]; // History orders table
+const historyTbody = historyTable.querySelector('tbody');
+
+let typingTimer;
+const typingDelay = 500; // milliseconds
+
+searchInput.addEventListener('keyup', function() {
+    clearTimeout(typingTimer);
+    const query = this.value.trim();
+
+    typingTimer = setTimeout(() => {
+        fetch(`/seller/orders/search?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    activeTbody.innerHTML = `<tr><td colspan="7">${data.error}</td></tr>`;
+                    historyTbody.innerHTML = `<tr><td colspan="7">${data.error}</td></tr>`;
+                    return;
+                }
+
+                const orders = data.orders;
+                let activeHtml = '';
+                let historyHtml = '';
+
+                if (Object.keys(orders).length === 0) {
+                    activeHtml = '<tr><td colspan="7">No active orders found.</td></tr>';
+                    historyHtml = '<tr><td colspan="7">No history orders found.</td></tr>';
+                } else {
+                    for (let key in orders) {
+                        const order = orders[key];
+                        const isDeliveredOrCancelled = order.order_meta.order_status === "Delivered" || order.items.some(it => it.item_status === "Cancelled");
+
+                        let rowHtml = `
+                        <tr ${isDeliveredOrCancelled ? 'style="background:#e8f5e9;"' : ''}>
+                            <td>#${order.order_meta.order_id}</td>
+                            <td>${order.order_meta.created_at}</td>
+                            <td>${order.order_meta.buyer_name}<br><small>${order.order_meta.buyer_mobile}</small></td>
+                            <td>₱${order.order_meta.order_total}</td>
+                            <td>${order.order_meta.order_status}</td>
+                            <td style="text-align:left;">
+                        `;
+
+                        order.items.forEach(it => {
+                            rowHtml += `
+                                <div style="margin-bottom:6px;">
+                                    <img src="/static/uploads/sellers/${it.main_image || 'default.jpg'}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">
+                                    <strong>${it.product_name}</strong><br>
+                                    <small>Variation: ${it.variation || '-'}</small><br>
+                                    <small>Qty: ${it.quantity}</small>
+                                </div>
+                            `;
+                        });
+
+                        rowHtml += `</td>`;
+
+                        if (!isDeliveredOrCancelled) {
+                            rowHtml += `<td>
+                                <a class="view-order-btn" href="#" data-order-id="${order.order_meta.order_id}" 
+                                style="padding:6px 12px; background:#007bff; color:white; text-decoration:none; border-radius:4px;">
+                                View</a>
+                            </td>`;
+                        } else {
+                            rowHtml += `<td style="text-align:left;">
+                                ${order.items.map(it => `
+                                    <div style="margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:6px;">
+                                        <img src="/static/uploads/sellers/${it.main_image || 'default.jpg'}" style="width:40px;height:40px;object-fit:cover;border-radius:4px; vertical-align:middle; margin-right:8px;">
+                                        <div style="display:inline-block; vertical-align:middle;">
+                                            <strong>${it.product_name}</strong><br>
+                                            Variation: <em>${it.variation || '-'}</em><br>
+                                            Qty: ${it.quantity}<br>
+                                            Buyer: <strong>${order.order_meta.buyer_name}</strong> • <small>${order.order_meta.buyer_mobile}</small>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </td>`;
+                        }
+
+                        rowHtml += `</tr>`;
+
+                        if (isDeliveredOrCancelled) {
+                            historyHtml += rowHtml;
+                        } else {
+                            activeHtml += rowHtml;
+                        }
+                    }
+                }
+
+                activeTbody.innerHTML = activeHtml;
+                historyTbody.innerHTML = historyHtml;
+
+                // Reattach modal event listeners for new buttons
+                document.querySelectorAll('.view-order-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        const orderId = btn.dataset.orderId;
+                        try {
+                            const res = await fetch(`/seller/order/${orderId}/json`);
+                            const data = await res.json();
+                            if (data.error) return alert(data.error);
+
+                            let html = `<p><strong>Order ID:</strong> ${data.order_meta.order_id}</p>
+                                        <p><strong>Buyer:</strong> ${data.order_meta.full_name} • ${data.order_meta.mobile}</p>
+                                        <p><strong>Shipping Address:</strong> ${data.shipping_address}</p>
+                                        <p><strong>Total:</strong> ₱${data.order_meta.total}</p>
+                                        <p><strong>Payment Method:</strong> ${data.order_meta.payment_method}</p>
+                                        <p><strong>Status:</strong> ${data.order_meta.order_status}</p>
+                                        <hr><h4>Items:</h4>`;
+
+                            data.items.forEach(it => {
+                                html += `<div style="display:flex; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #eee;">
+                                    <img src="/static/uploads/sellers/${it.main_image || 'default.jpg'}" style="width:60px;height:60px;object-fit:cover;margin-right:10px;border-radius:6px;">
+                                    <div style="flex:1;">
+                                        <strong>${it.product_name}</strong><br>
+                                        Variation: ${it.variation || '-'}<br>
+                                        Qty: ${it.quantity}<br>
+                                        Line Total: ₱${it.total_price}<br>
+                                        Status: <b style="color:${it.status === 'Cancelled' ? 'red':'black'}">${it.status}</b>
+                                    </div>
+                                </div>`;
+                            });
+
+                            const modal = document.getElementById('orderModal');
+                            document.getElementById('modalContent').innerHTML = html;
+                            modal.style.display = 'flex';
+
+                        } catch(err) {
+                            console.error(err);
+                            alert('Failed to fetch order details.');
+                        }
+                    });
+                });
+
+            });
+    }, typingDelay);
+});
+
+</script>
