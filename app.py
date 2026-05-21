@@ -140,8 +140,8 @@ login_manager.login_view = 'login'
 # Google OAuth Setup
 # --------------------------
 google_bp = make_google_blueprint(
-        client_id=os.getenv("GOOGLE_CLIENT_ID")
-        client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+        client_id=os.getenv("GOOGLE_CLIENT_ID"),
+        client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
     scope=[
         "openid",
         "https://www.googleapis.com/auth/userinfo.email",
