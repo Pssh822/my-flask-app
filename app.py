@@ -42,7 +42,8 @@ db_pool = psycopg2.pool.SimpleConnectionPool(
     database=os.getenv("DB_NAME"),
     user=os.getenv("DB_USER"),
     password=os.getenv("DB_PASSWORD"),
-    port=os.getenv("DB_PORT", 5432)
+    port=os.getenv("DB_PORT", 5432),
+    sslmode="require"
 )
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
