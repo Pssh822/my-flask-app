@@ -1288,7 +1288,7 @@ def payment():
         row = cursor.fetchone()
         if row:
             unique_sellers.add(row["seller_id"])
-            color_images = json.loads(row["color_images"]) if row["color_images"] else {}
+            color_images = row["color_images"] if row["color_images"] else {}
             row["variation_image"] = color_images.get(row["variation"], row["main_image"])
             subtotal += float(row["total_price"])
             seller_id = row["seller_id"]
@@ -1342,7 +1342,7 @@ def finalize_payment():
             row = cursor.fetchone()
             if not row:
                 continue
-            color_images = json.loads(row["color_images"]) if row["color_images"] else {}
+            color_images = row["color_images"] if row["color_images"] else {}
             row["photo"] = color_images.get(row["variation"], row["main_image"])
             seller_groups.setdefault(row["seller_id"], []).append(row)
 
@@ -1390,7 +1390,7 @@ def finalize_payment():
                 cursor.execute("SELECT color_stock FROM products WHERE product_id = %s", (r["product_id"],))
                 stock_row = cursor.fetchone()
                 if stock_row and stock_row["color_stock"]:
-                    color_stock = json.loads(stock_row["color_stock"])
+                    color_stock = stock_row["color_stock"] if stock_row["color_stock"] else {}
                     if r["variation"] in color_stock:
                         color_stock[r["variation"]] = max(0, color_stock[r["variation"]] - qty)
                         cursor.execute("UPDATE products SET color_stock=%s WHERE product_id=%s",
