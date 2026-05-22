@@ -1567,7 +1567,7 @@ def my_account():
         """, (session["user_id"],))
         user_data = cursor.fetchone()
         if user_data:
-            session['photo'] = user_data['photo']
+            session['photo'] = user_data['photo'] or 'default_photo_1.png'
             session['email'] = user_data['email']
 
     category_tree = build_category_tree(cursor)
