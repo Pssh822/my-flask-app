@@ -74,9 +74,9 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 mail = Mail(app)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = sb_publishable_-Jn8Wh89YI5Zhi_u5iGZaQ_o1fZ01EJ
+SUPABASE_KEY = "sb_publishable_-Jn8Wh89YI5Zhi_u5iGZaQ_o1fZ01EJ"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-app.secret_key = ceb91904e927c351a7b81cce0fa0384fd181ac541087ac909b64d80710d700f9
+app.secret_key = "ceb91904e927c351a7b81cce0fa0384fd181ac541087ac909b64d80710d700f9"
 # mail = Mail(app)
 # load_dotenv()
 
