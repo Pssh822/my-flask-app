@@ -296,7 +296,7 @@
   </div>
 
   <div class="order-body">
-    <img src="{{ url_for('static', filename='uploads/sellers/' + item.photo) }}" alt="{{ item.product_name }}">
+    <img src="{{ product_image_url(item.photo) }}" alt="{{ item.product_name }}">
 
     <div class="order-details">
       <h3>{{ item.product_name }}</h3>
