@@ -192,7 +192,7 @@
         <div class="user-dropdown">
           <button class="user-btn">
           <img 
-            src="{{ url_for('static', filename='uploads/sellers/' + session['photo']) }}" 
+            ssrc="{{ url_for('static', filename='uploads/sellers/' + (session.get('photo') or 'default_photo_1.png')) }}" 
             alt="Profile Photo" 
             class="profile-photo"
           >
@@ -343,7 +343,7 @@
         </div>
 
         <div class="profile-image">
-            <img src="{{ url_for('static', filename='uploads/sellers/' ~ user_data.photo) }}" alt="Profile Photo">
+            <img src="{{ url_for('static', filename='uploads/sellers/' ~ (user_data.photo or 'default_photo_1.png')) }}" alt="Profile Photo">
             <p>File size: maximum 1 MB<br>File extension: .JPEG, .PNG</p>
         </div>
       </div>
