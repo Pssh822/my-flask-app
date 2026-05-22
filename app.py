@@ -44,12 +44,8 @@ db_pool = psycopg2.pool.SimpleConnectionPool(
     password=os.getenv("DB_PASSWORD"),
     port=os.getenv("DB_PORT", 5432)
 )
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
-
-app.config['SERVER_NAME'] = '127.0.0.1:5000'
-app.config['PREFERRED_URL_SCHEME'] = 'http'
 
 app.config['MAIL_SERVER'] = 'smtp-relay.brevo.com'
 app.config['MAIL_PORT'] = 587
@@ -64,9 +60,9 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 mail = Mail(app)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_KEY = sb_publishable_-Jn8Wh89YI5Zhi_u5iGZaQ_o1fZ01EJ
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-app.secret_key = os.getenv("FLASK_SECRET_KEY")
+app.secret_key = ceb91904e927c351a7b81cce0fa0384fd181ac541087ac909b64d80710d700f9
 # mail = Mail(app)
 # load_dotenv()
 
