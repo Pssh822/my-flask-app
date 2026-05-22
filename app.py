@@ -36,15 +36,28 @@ app = Flask(__name__)
 
 load_dotenv()   # MOVE THIS HERE FIRST
 
-db_pool = psycopg2.pool.SimpleConnectionPool(
-    1, 20,
-    host=os.getenv("DB_HOST"),
-    database=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    port=os.getenv("DB_PORT", 5432),
-    sslmode="require"
-)
+try:
+    print("CONNECTING TO DATABASE...")
+
+    db_pool = psycopg2.pool.SimpleConnectionPool(
+        1,
+        20,
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT", 5432),
+        sslmode="require",
+        connect_timeout=10
+    )
+
+    print("DATABASE CONNECTED!")
+
+except Exception as e:
+    print("DATABASE CONNECTION ERROR:")
+    print(str(e))
+    raise e
+    
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
 
